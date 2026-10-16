@@ -1,0 +1,22 @@
+## Build and Binaries
+bin/
+obj/
+publish/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Database & Runtime Cache
+data.db
+*.db-shm
+*.db-wal
+*.log
+
+## Installer Outputs
+installer/Output/
+
+## Visual Studio / Rider / VS Code
+.vs/
+.idea/
+.vscode/

@@ -1,0 +1,188 @@
+<UserControl x:Class="TodoWidget.Views.Controls.TaskItemControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converters="clr-namespace:TodoWidget.Converters"
+             mc:Ignorable="d" 
+             x:Name="RootTaskItem">
+
+    <UserControl.Resources>
+        <converters:PriorityToBrushConverter x:Key="PriorityToBrush" />
+        <converters:DueDateFormatterConverter x:Key="DueDateFormatter" />
+        <converters:StatusToStrikethroughConverter x:Key="StatusToStrikethrough" />
+        <converters:StatusToOpacityConverter x:Key="StatusToOpacity" />
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+
+    <Border x:Name="ItemBorder"
+            Margin="0,2,0,2"
+            Padding="8,6"
+            CornerRadius="8"
+            Background="#181825"
+            BorderThickness="1"
+            BorderBrush="#313244">
+        <Border.Style>
+            <Style TargetType="Border">
+                <Setter Property="Background" Value="#1E1E2E" />
+                <Style.Triggers>
+                    
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#25263B" />
+                        <Setter Property="BorderBrush" Value="#45475A" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                
+                <ColumnDefinition Width="Auto" />
+                
+                <ColumnDefinition Width="Auto" />
+                
+                <ColumnDefinition Width="*" />
+                
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            
+            <Ellipse Grid.Column="0"
+                     Width="7"
+                     Height="7"
+                     Margin="0,0,8,0"
+                     VerticalAlignment="Center"
+                     Fill="{Binding Task.Priority, ElementName=RootTaskItem, Converter={StaticResource PriorityToBrush}}"
+                     ToolTip="{Binding Task.Priority, ElementName=RootTaskItem}" />
+
+            
+            <Button Grid.Column="1"
+                    Margin="0,0,8,0"
+                    VerticalAlignment="Center"
+                    Width="18"
+                    Height="18"
+                    Background="Transparent"
+                    BorderThickness="1.5"
+                    Cursor="Hand"
+                    Command="{Binding CompleteCommand, ElementName=RootTaskItem}"
+                    CommandParameter="{Binding Task, ElementName=RootTaskItem}">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="CheckBorder"
+                                CornerRadius="5"
+                                Background="Transparent"
+                                BorderBrush="#6C7086"
+                                BorderThickness="1.5">
+                            <TextBlock x:Name="CheckMark"
+                                       Text="✓"
+                                       FontSize="11"
+                                       FontWeight="Bold"
+                                       Foreground="#10B981"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Visibility="Collapsed" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding Task.Status, ElementName=RootTaskItem}" Value="Completed">
+                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible" />
+                                <Setter TargetName="CheckBorder" Property="BorderBrush" Value="#10B981" />
+                                <Setter TargetName="CheckBorder" Property="Background" Value="#10251E" />
+                            </DataTrigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CheckBorder" Property="BorderBrush" Value="#3B82F6" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
+            
+            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Task.Title, ElementName=RootTaskItem}"
+                           FontSize="12.5"
+                           FontWeight="Medium"
+                           TextTrimming="CharacterEllipsis"
+                           TextDecorations="{Binding Task.Status, ElementName=RootTaskItem, Converter={StaticResource StatusToStrikethrough}}"
+                           Opacity="{Binding Task.Status, ElementName=RootTaskItem, Converter={StaticResource StatusToOpacity}}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="#CDD6F4" />
+                            <Style.Triggers>
+                                
+                                <DataTrigger Binding="{Binding Task.IsOverdue, ElementName=RootTaskItem}" Value="True">
+                                    <Setter Property="Foreground" Value="#F38BA8" />
+                                </DataTrigger>
+                                
+                                <DataTrigger Binding="{Binding Task.Status, ElementName=RootTaskItem}" Value="Completed">
+                                    <Setter Property="Foreground" Value="#6C7086" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                
+                <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                    <TextBlock Text="{Binding Task.EffectiveDueDate, ElementName=RootTaskItem, Converter={StaticResource DueDateFormatter}}"
+                               FontSize="10.5"
+                               Foreground="#89B4FA"
+                               Visibility="{Binding Task.EffectiveDueDate, ElementName=RootTaskItem, Converter={StaticResource BoolToVis}}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Task.IsOverdue, ElementName=RootTaskItem}" Value="True">
+                                        <Setter Property="Foreground" Value="#F38BA8" />
+                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Task.Status, ElementName=RootTaskItem}" Value="Completed">
+                                        <Setter Property="Foreground" Value="#585B70" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Task.RecurringDaysSummary, ElementName=RootTaskItem}"
+                               FontSize="10"
+                               FontWeight="SemiBold"
+                               Foreground="#89B4FA"
+                               Margin="6,0,0,0"
+                               Visibility="{Binding Task.IsRecurring, ElementName=RootTaskItem, Converter={StaticResource BoolToVis}}" />
+                </StackPanel>
+            </StackPanel>
+
+            
+            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                
+                <Button Width="20"
+                        Height="20"
+                        Margin="4,0,0,0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        ToolTip="Delete Task"
+                        Command="{Binding DeleteCommand, ElementName=RootTaskItem}"
+                        CommandParameter="{Binding Task, ElementName=RootTaskItem}">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="BtnBorder" CornerRadius="4" Background="Transparent">
+                                <TextBlock Text="✕"
+                                           FontSize="11"
+                                           FontWeight="Bold"
+                                           Foreground="#6C7086"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="BtnBorder" Property="Background" Value="#3D2029" />
+                                    <Setter Property="Foreground" Value="#F38BA8" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

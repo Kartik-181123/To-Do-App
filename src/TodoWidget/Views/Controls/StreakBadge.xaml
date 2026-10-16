@@ -1,0 +1,106 @@
+﻿<UserControl x:Class="TodoWidget.Views.Controls.StreakBadge"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             x:Name="RootStreakBadge">
+    <UserControl.Resources>
+        <Storyboard x:Key="PulseAnimation">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="BadgeScaleTransform"
+                                           Storyboard.TargetProperty="ScaleX">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="1.0" />
+                <EasingDoubleKeyFrame KeyTime="0:0:0.18" Value="1.18">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuadraticEase EasingMode="EaseOut" />
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.35" Value="1.0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuadraticEase EasingMode="EaseIn" />
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="BadgeScaleTransform"
+                                           Storyboard.TargetProperty="ScaleY">
+                <EasingDoubleKeyFrame KeyTime="0:0:0" Value="1.0" />
+                <EasingDoubleKeyFrame KeyTime="0:0:0.18" Value="1.18">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuadraticEase EasingMode="EaseOut" />
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.35" Value="1.0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuadraticEase EasingMode="EaseIn" />
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+    </UserControl.Resources>
+
+    <Border x:Name="BadgeContainer"
+            RenderTransformOrigin="0.5,0.5"
+            CornerRadius="12"
+            Padding="8,4"
+            BorderThickness="1"
+            Cursor="Hand"
+            ToolTip="Current Daily Completion Streak">
+        <Border.RenderTransform>
+            <ScaleTransform x:Name="BadgeScaleTransform" ScaleX="1.0" ScaleY="1.0" />
+        </Border.RenderTransform>
+        
+        <Border.Style>
+            <Style TargetType="Border">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#2A1B18" Offset="0" />
+                            <GradientStop Color="#3D201A" Offset="1" />
+                        </LinearGradientBrush>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="BorderBrush" Value="#8B4513" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding StreakCount, ElementName=RootStreakBadge}" Value="0">
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#24273A" Offset="0" />
+                                    <GradientStop Color="#1E2030" Offset="1" />
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="BorderBrush" Value="#363A4F" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            
+            <TextBlock x:Name="EmojiIcon"
+                       Text="{Binding StreakEmoji, ElementName=RootStreakBadge}"
+                       FontSize="13"
+                       Margin="0,0,5,0"
+                       VerticalAlignment="Center" />
+
+            
+            <TextBlock x:Name="StreakTextLabel"
+                       Text="{Binding DisplayText, ElementName=RootStreakBadge}"
+                       FontSize="11.5"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="#FFAA44" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding StreakCount, ElementName=RootStreakBadge}" Value="0">
+                                <Setter Property="Foreground" Value="#8087A2" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </StackPanel>
+    </Border>
+</UserControl>
