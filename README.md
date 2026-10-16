@@ -52,8 +52,8 @@ Requirements:
 
 Steps:
 1. Clone the repository:
-   git clone https://github.com/Kartik-048/Todo-App.git
-   cd Todo-App
+   git clone https://github.com/Kartik-181123/To-Do-App.git
+   cd To-Do-App
 
 2. Build and run:
    dotnet run --project src/TodoWidget/TodoWidget.csproj
