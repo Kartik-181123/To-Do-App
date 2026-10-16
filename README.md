@@ -5,6 +5,7 @@ A lightweight desktop to-do list widget and task organizer for Windows.
 I built this app with a single goal in mind: killing procrastination. I often found myself getting distracted on my PC and completely forgetting what I actually sat down to do. This app sits on your desktop, keeps your tasks right in front of you, and reminds you when things are due so you stay on track.
 
 No Chromium, no Electron, and no background memory hogging. It is built natively with C# and WPF on .NET 8.
+Light Weight
 
 ---
 
