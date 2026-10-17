@@ -54,7 +54,7 @@ No Chromium, no Electron, and no background memory hogging. It is built natively
 
 ### Option 1: Standalone Installer (Recommended)
 1. Head over to the Releases section on GitHub.
-2. Download `ToDoSetup-2.1.0.exe`.
+2. Download `ToDoSetup-2.2.0.exe`.
 3. Run the installer and follow the on-screen steps. It sets up desktop shortcuts, start menu entries, and an optional startup launch.
 
 ### Option 2: Building from Source

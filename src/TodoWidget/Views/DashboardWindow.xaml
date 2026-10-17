@@ -1076,7 +1076,7 @@
                                 <ProgressBar Height="6"
                                              Minimum="0"
                                              Maximum="100"
-                                             Value="{Binding Updater.DownloadProgress}"
+                                             Value="{Binding Updater.DownloadProgress, Mode=OneWay}"
                                              Visibility="{Binding Updater.IsDownloading, Converter={StaticResource BoolToVis}}"
                                              Foreground="#10B981"
                                              Background="#181825"

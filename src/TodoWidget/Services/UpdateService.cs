@@ -43,7 +43,7 @@ public class UpdateService : ObservableObject
         get
         {
             var ver = Assembly.GetExecutingAssembly().GetName().Version;
-            return ver != null ? new Version(ver.Major, ver.Minor, Math.Max(0, ver.Build)) : new Version(2, 1, 0);
+            return ver != null ? new Version(ver.Major, ver.Minor, Math.Max(0, ver.Build)) : new Version(2, 2, 0);
         }
     }
 
@@ -64,7 +64,7 @@ public class UpdateService : ObservableObject
     public double DownloadProgress
     {
         get => _downloadProgress;
-        private set => SetProperty(ref _downloadProgress, value);
+        set => SetProperty(ref _downloadProgress, value);
     }
 
     public string StatusMessage

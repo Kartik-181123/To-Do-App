@@ -306,12 +306,26 @@ if ($isccPath) {
         New-Item -ItemType Directory -Path $InstallerOutputDir -Force | Out-Null
     }
 
-    Write-Host "Compiling installer: $InstallerScript..." -ForegroundColor Gray
-    & "$isccPath" "$InstallerScript"
+    $maxAttempts = 3
+    $attempt = 1
+    $success = $false
 
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "Inno Setup compiler failed with exit code $LASTEXITCODE"
-        exit $LASTEXITCODE
+    while ($attempt -le $maxAttempts -and -not $success) {
+        Write-Host "Compiling installer (Attempt $attempt of $maxAttempts): $InstallerScript..." -ForegroundColor Gray
+        & "$isccPath" "$InstallerScript"
+        if ($LASTEXITCODE -eq 0) {
+            $success = $true
+        } else {
+            Write-Warning "Inno Setup compilation attempt $attempt failed (Exit code: $LASTEXITCODE). Windows file scanning may have temporarily locked the target file."
+            Get-ChildItem -Path $InstallerOutputDir -Filter "ToDoSetup-*.exe" | Where-Object { $_.Length -lt 5MB } | Remove-Item -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Seconds 3
+            $attempt++
+        }
+    }
+
+    if (-not $success) {
+        Write-Error "Inno Setup compiler failed after $maxAttempts attempts."
+        exit 1
     }
 
     Write-Host ""
@@ -321,7 +335,7 @@ if ($isccPath) {
     Write-Host "Installer Output Directory:" -ForegroundColor Cyan
     Write-Host "  $InstallerOutputDir" -ForegroundColor White
 
-    $setupExe = Get-ChildItem -Path $InstallerOutputDir -Filter "ToDoSetup-*.exe" | Select-Object -First 1
+    $setupExe = Get-ChildItem -Path $InstallerOutputDir -Filter "ToDoSetup-*.exe" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
     if ($setupExe) {
         $setupSizeMB = [math]::Round($setupExe.Length / 1MB, 2)
         Write-Host "Installer Executable       : $($setupExe.FullName) ($setupSizeMB MB)" -ForegroundColor White
