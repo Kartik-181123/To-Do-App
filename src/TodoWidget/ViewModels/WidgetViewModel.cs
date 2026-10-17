@@ -74,6 +74,7 @@ public class WidgetViewModel : ObservableObject
     }
     public RelayCommand<TodoTask> CompleteTaskCommand { get; }
     public RelayCommand<TodoTask> DeleteTaskCommand { get; }
+    public RelayCommand<TodoTask> ToggleVoiceNoteCommand { get; }
     public RelayCommand OpenDashboardCommand { get; }
     public RelayCommand AddQuickTaskCommand { get; }
     public RelayCommand RefreshCommand { get; }
@@ -88,6 +89,13 @@ public class WidgetViewModel : ObservableObject
 
         CompleteTaskCommand = new RelayCommand<TodoTask>(ExecuteCompleteTask);
         DeleteTaskCommand = new RelayCommand<TodoTask>(ExecuteDeleteTask);
+        ToggleVoiceNoteCommand = new RelayCommand<TodoTask>(task =>
+        {
+            if (task != null && task.HasVoiceNote)
+            {
+                AudioService.Instance.TogglePlay(task.VoiceNotePath);
+            }
+        });
         OpenDashboardCommand = new RelayCommand(ExecuteOpenDashboard);
         AddQuickTaskCommand = new RelayCommand(ExecuteAddQuickTask, () => !string.IsNullOrWhiteSpace(NewTaskTitle));
         RefreshCommand = new RelayCommand(() =>

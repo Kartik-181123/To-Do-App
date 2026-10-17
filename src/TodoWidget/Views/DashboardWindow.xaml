@@ -479,6 +479,30 @@
                                                                 Visibility="{Binding IsRecurring, Converter={StaticResource BoolToVis}}">
                                                             <TextBlock Text="{Binding RecurringDaysSummary}" FontSize="10" FontWeight="SemiBold" Foreground="#89B4FA" />
                                                         </Border>
+                                                        <Button Margin="8,0,0,0"
+                                                                Cursor="Hand"
+                                                                ToolTip="Play or pause voice note"
+                                                                Visibility="{Binding HasVoiceNote, Converter={StaticResource BoolToVis}}"
+                                                                Command="{Binding DataContext.ToggleVoiceNoteCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}">
+                                                            <Button.Template>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border x:Name="VnBorder" CornerRadius="4" Background="#181825" BorderBrush="#A6E3A1" BorderThickness="1" Padding="6,2">
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <TextBlock Text="▶ " FontSize="10" Foreground="#A6E3A1" VerticalAlignment="Center" />
+                                                                            <TextBlock Text="Voice Note (" FontSize="10" Foreground="#A6E3A1" VerticalAlignment="Center" />
+                                                                            <TextBlock Text="{Binding VoiceNoteDurationText}" FontSize="10" FontWeight="SemiBold" Foreground="#A6E3A1" VerticalAlignment="Center" />
+                                                                            <TextBlock Text=")" FontSize="10" Foreground="#A6E3A1" VerticalAlignment="Center" />
+                                                                        </StackPanel>
+                                                                    </Border>
+                                                                    <ControlTemplate.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter TargetName="VnBorder" Property="Background" Value="#25263B" />
+                                                                        </Trigger>
+                                                                    </ControlTemplate.Triggers>
+                                                                </ControlTemplate>
+                                                            </Button.Template>
+                                                        </Button>
                                                     </StackPanel>
                                                 </StackPanel>
 

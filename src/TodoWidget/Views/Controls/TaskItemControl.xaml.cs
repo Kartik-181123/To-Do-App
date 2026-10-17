@@ -1,4 +1,4 @@
-﻿namespace TodoWidget.Views.Controls;
+namespace TodoWidget.Views.Controls;
 
 using System.Windows;
 using System.Windows.Controls;
@@ -30,6 +30,12 @@ public partial class TaskItemControl : UserControl
             typeof(ICommand),
             typeof(TaskItemControl),
             new PropertyMetadata(null));
+    public static readonly DependencyProperty VoiceNoteCommandProperty =
+        DependencyProperty.Register(
+            nameof(VoiceNoteCommand),
+            typeof(ICommand),
+            typeof(TaskItemControl),
+            new PropertyMetadata(null));
     public TodoTask? Task
     {
         get => (TodoTask?)GetValue(TaskProperty);
@@ -49,6 +55,11 @@ public partial class TaskItemControl : UserControl
     {
         get => (ICommand?)GetValue(EditCommandProperty);
         set => SetValue(EditCommandProperty, value);
+    }
+    public ICommand? VoiceNoteCommand
+    {
+        get => (ICommand?)GetValue(VoiceNoteCommandProperty);
+        set => SetValue(VoiceNoteCommandProperty, value);
     }
     public TaskItemControl()
     {

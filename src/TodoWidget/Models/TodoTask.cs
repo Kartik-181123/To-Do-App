@@ -23,6 +23,17 @@ public class TodoTask
     public TimeSpan? StartTime { get; set; }
     public TimeSpan? EndTime { get; set; }
 
+    public string? VoiceNotePath { get; set; }
+    public int VoiceNoteDurationSeconds { get; set; } = 0;
+
+    [BsonIgnore]
+    public bool HasVoiceNote => !string.IsNullOrEmpty(VoiceNotePath) && System.IO.File.Exists(VoiceNotePath);
+
+    [BsonIgnore]
+    public string VoiceNoteDurationText => VoiceNoteDurationSeconds > 0
+        ? $"{VoiceNoteDurationSeconds / 60:D2}:{VoiceNoteDurationSeconds % 60:D2}"
+        : "00:00";
+
     public bool AppliesToDay(DateTime date)
     {
         if (!IsRecurring)

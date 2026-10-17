@@ -161,7 +161,8 @@
                                 <DataTemplate>
                                     <controls:TaskItemControl Task="{Binding}"
                                                               CompleteCommand="{Binding DataContext.CompleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                              DeleteCommand="{Binding DataContext.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                                              DeleteCommand="{Binding DataContext.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                              VoiceNoteCommand="{Binding DataContext.ToggleVoiceNoteCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

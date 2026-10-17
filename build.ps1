@@ -304,9 +304,6 @@ if ($isccPath) {
 
     if (-not (Test-Path $InstallerOutputDir)) {
         New-Item -ItemType Directory -Path $InstallerOutputDir -Force | Out-Null
-    } else {
-        Write-Host "Removing old installer files from $InstallerOutputDir..." -ForegroundColor Gray
-        Remove-Item -Path "$InstallerOutputDir\*" -Force -Recurse -ErrorAction SilentlyContinue
     }
 
     Write-Host "Compiling installer: $InstallerScript..." -ForegroundColor Gray
@@ -324,11 +321,10 @@ if ($isccPath) {
     Write-Host "Installer Output Directory:" -ForegroundColor Cyan
     Write-Host "  $InstallerOutputDir" -ForegroundColor White
 
-    $setupExe = Join-Path $InstallerOutputDir "ToDoSetup-1.0.0.exe"
-    if (Test-Path $setupExe) {
-        $setupItem = Get-Item $setupExe
-        $setupSizeMB = [math]::Round($setupItem.Length / 1MB, 2)
-        Write-Host "Installer Executable       : $setupExe ($setupSizeMB MB)" -ForegroundColor White
+    $setupExe = Get-ChildItem -Path $InstallerOutputDir -Filter "ToDoSetup-*.exe" | Select-Object -First 1
+    if ($setupExe) {
+        $setupSizeMB = [math]::Round($setupExe.Length / 1MB, 2)
+        Write-Host "Installer Executable       : $($setupExe.FullName) ($setupSizeMB MB)" -ForegroundColor White
     }
     Write-Host ""
 } else {

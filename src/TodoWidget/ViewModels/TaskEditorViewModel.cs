@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TodoWidget.Data;
 using TodoWidget.Helpers;
 using TodoWidget.Models;
+using TodoWidget.Services;
 public class TaskEditorViewModel : ObservableObject
 {
     private readonly AppDatabase _database;
@@ -60,6 +61,68 @@ public class TaskEditorViewModel : ObservableObject
     private bool _repeatSun;
     private TimeSpan? _startTime = new TimeSpan(9, 0, 0);
     private TimeSpan? _endTime = new TimeSpan(11, 0, 0);
+
+    private string? _voiceNotePath;
+    private int _voiceNoteDurationSeconds;
+    private bool _isRecordingVoiceNote;
+    private bool _isPlayingVoiceNote;
+    private string _recordingDurationText = "00:00";
+    private string? _newlyRecordedPath;
+
+    public string? VoiceNotePath
+    {
+        get => _voiceNotePath;
+        set
+        {
+            if (SetProperty(ref _voiceNotePath, value))
+            {
+                OnPropertyChanged(nameof(HasVoiceNote));
+                OnPropertyChanged(nameof(VoiceNoteDurationText));
+            }
+        }
+    }
+
+    public int VoiceNoteDurationSeconds
+    {
+        get => _voiceNoteDurationSeconds;
+        set
+        {
+            if (SetProperty(ref _voiceNoteDurationSeconds, value))
+            {
+                OnPropertyChanged(nameof(VoiceNoteDurationText));
+            }
+        }
+    }
+
+    public bool HasVoiceNote => !string.IsNullOrEmpty(VoiceNotePath) && System.IO.File.Exists(VoiceNotePath);
+
+    public string VoiceNoteDurationText => VoiceNoteDurationSeconds > 0
+        ? $"{VoiceNoteDurationSeconds / 60:D2}:{VoiceNoteDurationSeconds % 60:D2}"
+        : "00:00";
+
+    public bool IsRecordingVoiceNote
+    {
+        get => _isRecordingVoiceNote;
+        set => SetProperty(ref _isRecordingVoiceNote, value);
+    }
+
+    public bool IsPlayingVoiceNote
+    {
+        get => _isPlayingVoiceNote;
+        set => SetProperty(ref _isPlayingVoiceNote, value);
+    }
+
+    public string RecordingDurationText
+    {
+        get => _recordingDurationText;
+        set => SetProperty(ref _recordingDurationText, value);
+    }
+
+    public RelayCommand StartRecordVoiceNoteCommand { get; }
+    public RelayCommand StopRecordVoiceNoteCommand { get; }
+    public RelayCommand CancelRecordVoiceNoteCommand { get; }
+    public RelayCommand PlayVoiceNoteCommand { get; }
+    public RelayCommand DeleteVoiceNoteCommand { get; }
 
     public event Action<bool>? RequestClose;
     public IEnumerable<TaskPriority> AvailablePriorities => Enum.GetValues<TaskPriority>();
@@ -155,12 +218,37 @@ public class TaskEditorViewModel : ObservableObject
         SaveCommand = new RelayCommand(ExecuteSave);
         CancelCommand = new RelayCommand(ExecuteCancel);
 
+        StartRecordVoiceNoteCommand = new RelayCommand(ExecuteStartRecord);
+        StopRecordVoiceNoteCommand = new RelayCommand(ExecuteStopRecord);
+        CancelRecordVoiceNoteCommand = new RelayCommand(ExecuteCancelRecord);
+        PlayVoiceNoteCommand = new RelayCommand(ExecutePlayVoiceNote);
+        DeleteVoiceNoteCommand = new RelayCommand(ExecuteDeleteVoiceNote);
+
+        AudioService.Instance.PropertyChanged += (s, e) =>
+        {
+            if (e.PropertyName == nameof(AudioService.RecordingDurationText))
+            {
+                RecordingDurationText = AudioService.Instance.RecordingDurationText;
+            }
+            if (e.PropertyName == nameof(AudioService.IsRecording))
+            {
+                IsRecordingVoiceNote = AudioService.Instance.IsRecording;
+            }
+        };
+
+        AudioService.Instance.PlaybackStateChanged += () =>
+        {
+            IsPlayingVoiceNote = AudioService.Instance.IsPathPlaying(VoiceNotePath);
+        };
+
         if (task != null)
         {
             IsEditing = true;
             Title = task.Title ?? string.Empty;
             Description = task.Description ?? string.Empty;
             Priority = task.Priority;
+            VoiceNotePath = task.VoiceNotePath;
+            VoiceNoteDurationSeconds = task.VoiceNoteDurationSeconds;
 
             IsRecurring = task.IsRecurring;
             if (task.RepeatDays != null)
@@ -234,6 +322,12 @@ public class TaskEditorViewModel : ObservableObject
             finalDueDate = date.Add(time);
         }
 
+        if (IsRecordingVoiceNote)
+        {
+            ExecuteStopRecord();
+        }
+        AudioService.Instance.Stop();
+
         if (IsEditing && _existingTask != null)
         {
             _existingTask.Title = Title.Trim();
@@ -244,6 +338,8 @@ public class TaskEditorViewModel : ObservableObject
             _existingTask.RepeatDays = repeatDaysList;
             _existingTask.StartTime = IsRecurring ? StartTime : null;
             _existingTask.EndTime = IsRecurring ? EndTime : null;
+            _existingTask.VoiceNotePath = VoiceNotePath;
+            _existingTask.VoiceNoteDurationSeconds = VoiceNoteDurationSeconds;
             _database.UpsertTask(_existingTask);
         }
         else
@@ -259,7 +355,9 @@ public class TaskEditorViewModel : ObservableObject
                 IsRecurring = IsRecurring,
                 RepeatDays = repeatDaysList,
                 StartTime = IsRecurring ? StartTime : null,
-                EndTime = IsRecurring ? EndTime : null
+                EndTime = IsRecurring ? EndTime : null,
+                VoiceNotePath = VoiceNotePath,
+                VoiceNoteDurationSeconds = VoiceNoteDurationSeconds
             };
             _database.UpsertTask(newTask);
         }
@@ -269,6 +367,64 @@ public class TaskEditorViewModel : ObservableObject
 
     private void ExecuteCancel()
     {
+        if (IsRecordingVoiceNote)
+        {
+            AudioService.Instance.CancelRecording();
+        }
+        AudioService.Instance.Stop();
+
+        if (!string.IsNullOrEmpty(_newlyRecordedPath) && _newlyRecordedPath != _existingTask?.VoiceNotePath)
+        {
+            AudioService.Instance.DeleteVoiceNote(_newlyRecordedPath);
+        }
+
         RequestClose?.Invoke(false);
+    }
+
+    private void ExecuteStartRecord()
+    {
+        AudioService.Instance.Stop();
+        if (AudioService.Instance.StartRecording())
+        {
+            IsRecordingVoiceNote = true;
+            RecordingDurationText = "00:00";
+        }
+    }
+
+    private void ExecuteStopRecord()
+    {
+        var (path, duration) = AudioService.Instance.StopRecording();
+        IsRecordingVoiceNote = false;
+        if (!string.IsNullOrEmpty(path))
+        {
+            _newlyRecordedPath = path;
+            VoiceNotePath = path;
+            VoiceNoteDurationSeconds = duration;
+        }
+    }
+
+    private void ExecuteCancelRecord()
+    {
+        AudioService.Instance.CancelRecording();
+        IsRecordingVoiceNote = false;
+    }
+
+    private void ExecutePlayVoiceNote()
+    {
+        if (string.IsNullOrEmpty(VoiceNotePath)) return;
+        AudioService.Instance.TogglePlay(VoiceNotePath);
+        IsPlayingVoiceNote = AudioService.Instance.IsPathPlaying(VoiceNotePath);
+    }
+
+    private void ExecuteDeleteVoiceNote()
+    {
+        AudioService.Instance.Stop();
+        if (!string.IsNullOrEmpty(VoiceNotePath))
+        {
+            AudioService.Instance.DeleteVoiceNote(VoiceNotePath);
+            VoiceNotePath = null;
+            VoiceNoteDurationSeconds = 0;
+            IsPlayingVoiceNote = false;
+        }
     }
 }

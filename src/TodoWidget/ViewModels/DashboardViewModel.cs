@@ -128,8 +128,11 @@ public class DashboardViewModel : ObservableObject
     public RelayCommand<TodoTask> EditTaskCommand { get; }
     public RelayCommand<TodoTask> DeleteTaskCommand { get; }
     public RelayCommand<TodoTask> ToggleTaskStatusCommand { get; }
+    public RelayCommand<TodoTask> ToggleVoiceNoteCommand { get; }
     public RelayCommand OpenSettingsCommand { get; }
     public RelayCommand RefreshCommand { get; }
+
+    public string? CurrentlyPlayingVoiceNotePath => AudioService.Instance.CurrentPlayingPath;
     public DashboardViewModel(AppDatabase database, StreakService? streakService = null)
     {
         _database = database ?? throw new ArgumentNullException(nameof(database));
@@ -148,8 +151,23 @@ public class DashboardViewModel : ObservableObject
         });
         DeleteTaskCommand = new RelayCommand<TodoTask>(ExecuteDeleteTask);
         ToggleTaskStatusCommand = new RelayCommand<TodoTask>(ExecuteToggleStatus);
+        ToggleVoiceNoteCommand = new RelayCommand<TodoTask>(task =>
+        {
+            if (task != null && task.HasVoiceNote)
+            {
+                AudioService.Instance.TogglePlay(task.VoiceNotePath);
+            }
+        });
         OpenSettingsCommand = new RelayCommand(() => SelectedTabIndex = 2);
         RefreshCommand = new RelayCommand(RefreshAll);
+
+        AudioService.Instance.PlaybackStateChanged += () =>
+        {
+            RunOnDispatcher(() =>
+            {
+                OnPropertyChanged(nameof(CurrentlyPlayingVoiceNotePath));
+            });
+        };
 
         RefreshAll();
     }
