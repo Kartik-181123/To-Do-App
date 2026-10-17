@@ -67,6 +67,15 @@ public partial class App : Application
         {
             OpenDashboard();
         }
+
+        if (settings.CheckForUpdatesOnStartup)
+        {
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(5000);
+                await UpdateService.Instance.CheckForUpdatesAsync(manualCheck: false);
+            });
+        }
     }
     public void OpenDashboard()
     {

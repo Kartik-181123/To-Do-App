@@ -1,4 +1,4 @@
-﻿namespace TodoWidget.Converters;
+namespace TodoWidget.Converters;
 
 using System;
 using System.Globalization;
@@ -218,4 +218,17 @@ public class HexToBrushConverter : IValueConverter
 
         return "#00000000";
     }
+}
+
+public class StringToVisibilityConverter : IValueConverter
+{
+    public bool Invert { get; set; }
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        bool hasText = value is string s && !string.IsNullOrWhiteSpace(s);
+        if (Invert) hasText = !hasText;
+        return hasText ? Visibility.Visible : Visibility.Collapsed;
+    }
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
 }

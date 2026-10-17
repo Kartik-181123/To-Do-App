@@ -28,4 +28,5 @@ public class AppSettings
     public bool StartMinimized { get; set; } = false;
     public bool ShowStreakOnWidget { get; set; } = true;
     public int DayEndHour { get; set; } = 0;
+    public bool CheckForUpdatesOnStartup { get; set; } = true;
 }

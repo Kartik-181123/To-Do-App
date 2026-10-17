@@ -40,6 +40,17 @@ public class SettingsViewModel : ObservableObject
     private ObservableCollection<int> _reminderIntervals = new();
     private int _newReminderMinutes = 15;
     private string _statusMessage = string.Empty;
+    private bool _checkForUpdatesOnStartup = true;
+
+    public UpdateService Updater => UpdateService.Instance;
+    public string CurrentVersionText => UpdateService.CurrentVersionDisplay;
+    public bool CheckForUpdatesOnStartup
+    {
+        get => _checkForUpdatesOnStartup;
+        set => SetProperty(ref _checkForUpdatesOnStartup, value);
+    }
+    public RelayCommand CheckForUpdatesCommand { get; }
+    public RelayCommand InstallUpdateCommand { get; }
     public IEnumerable<AppTheme> AvailableThemes => Enum.GetValues<AppTheme>();
     public IEnumerable<WidgetDockPosition> AvailableDockPositions => Enum.GetValues<WidgetDockPosition>();
     public ObservableCollection<string> AvailableFonts { get; } = new()
@@ -231,6 +242,27 @@ public class SettingsViewModel : ObservableObject
         ResetDefaultsCommand = new RelayCommand(ExecuteResetDefaults);
         AddReminderCommand = new RelayCommand(ExecuteAddReminder);
         RemoveReminderCommand = new RelayCommand<int>(ExecuteRemoveReminder);
+        CheckForUpdatesCommand = new RelayCommand(async () =>
+        {
+            await UpdateService.Instance.CheckForUpdatesAsync(manualCheck: true);
+        });
+        InstallUpdateCommand = new RelayCommand(async () =>
+        {
+            if (UpdateService.Instance.AvailableUpdate != null)
+            {
+                var update = UpdateService.Instance.AvailableUpdate;
+                var res = System.Windows.MessageBox.Show(
+                    $"Download and install To-Do {update.DisplayVersion}?\n\nRelease Title: {update.Title}\n\nRelease Notes:\n{update.ReleaseNotes}",
+                    "Update Available",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Information);
+
+                if (res == System.Windows.MessageBoxResult.Yes)
+                {
+                    await UpdateService.Instance.DownloadAndInstallAsync(update);
+                }
+            }
+        });
 
         LoadSettings();
     }
@@ -262,6 +294,7 @@ public class SettingsViewModel : ObservableObject
         StartMinimized = settings.StartMinimized;
         ShowStreakOnWidget = settings.ShowStreakOnWidget;
         DayEndHour = settings.DayEndHour;
+        CheckForUpdatesOnStartup = settings.CheckForUpdatesOnStartup;
 
         var intervals = settings.ReminderIntervalsMinutes != null && settings.ReminderIntervalsMinutes.Count > 0
             ? settings.ReminderIntervalsMinutes
@@ -297,6 +330,7 @@ public class SettingsViewModel : ObservableObject
         settings.StartMinimized = StartMinimized;
         settings.ShowStreakOnWidget = ShowStreakOnWidget;
         settings.DayEndHour = DayEndHour;
+        settings.CheckForUpdatesOnStartup = CheckForUpdatesOnStartup;
         settings.ReminderIntervalsMinutes = ReminderIntervals.ToList();
 
         if (SettingsManager.Instance != null)
@@ -334,6 +368,7 @@ public class SettingsViewModel : ObservableObject
         StartMinimized = false;
         ShowStreakOnWidget = true;
         DayEndHour = 24;
+        CheckForUpdatesOnStartup = true;
 
         ReminderIntervals = new ObservableCollection<int> { 5, 15, 30 };
 
