@@ -79,6 +79,105 @@
             <Setter Property="Padding" Value="16" />
             <Setter Property="Margin" Value="6" />
         </Style>
+
+        <!-- Task Row Edit Button Style -->
+        <Style x:Key="TaskEditButton" TargetType="Button">
+            <Setter Property="Width" Value="28" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Background" Value="#161928" />
+            <Setter Property="BorderBrush" Value="#23273D" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="6"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1C2640" />
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#3B82F6" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1D386B" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Task Row Delete Button Style -->
+        <Style x:Key="TaskDeleteButton" TargetType="Button">
+            <Setter Property="Width" Value="28" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Background" Value="#161928" />
+            <Setter Property="BorderBrush" Value="#23273D" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="6"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#351C28" />
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#F38BA8" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#4A2033" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Task Row Voice Note Button Style -->
+        <Style x:Key="VoiceNotePlayButton" TargetType="Button">
+            <Setter Property="Width" Value="28" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Background" Value="#161928" />
+            <Setter Property="BorderBrush" Value="#23273D" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="6"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#132B22" />
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#10B981" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1B4234" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -312,18 +411,30 @@
                     <Button Grid.Column="2"
                             Width="36"
                             Height="36"
+                            Padding="0"
                             Background="#141724"
                             BorderBrush="#23273D"
                             BorderThickness="1"
                             Cursor="Hand"
                             ToolTip="Refresh Tasks"
                             Command="{Binding RefreshCommand}">
-                        <Button.Resources>
-                            <Style TargetType="{x:Type Border}">
-                                <Setter Property="CornerRadius" Value="8" />
-                            </Style>
-                        </Button.Resources>
-                        <TextBlock Text="⟳" FontSize="14" Foreground="#9BA3C7" />
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd"
+                                        CornerRadius="8"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}">
+                                    <TextBlock Text="⟳" FontSize="15" Foreground="#9BA3C7" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#1C2033" />
+                                        <Setter TargetName="Bd" Property="BorderBrush" Value="#3B82F6" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
                     </Button>
                 </Grid>
 
@@ -479,23 +590,27 @@
 
                                                 <!-- Action Buttons -->
                                                 <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
-                                                    <Button Width="28"
-                                                            Height="28"
+                                                    <!-- Voice Note Play Button (Visible only if has voice note) -->
+                                                    <Button Style="{StaticResource VoiceNotePlayButton}"
                                                             Margin="0,0,4,0"
-                                                            Background="Transparent"
-                                                            BorderThickness="0"
-                                                            Cursor="Hand"
+                                                            ToolTip="Play Voice Memo"
+                                                            Visibility="{Binding HasVoiceNote, Converter={StaticResource BoolToVis}}"
+                                                            Command="{Binding DataContext.ToggleVoiceNoteCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding}">
+                                                        <TextBlock Text="▶" FontSize="10" Foreground="#A6E3A1" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                    </Button>
+
+                                                    <!-- Edit Task Button -->
+                                                    <Button Style="{StaticResource TaskEditButton}"
+                                                            Margin="0,0,4,0"
                                                             ToolTip="Edit Task"
                                                             Command="{Binding DataContext.EditTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding}">
                                                         <TextBlock Text="✎" FontSize="12.5" Foreground="#CDD6F4" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                     </Button>
 
-                                                    <Button Width="28"
-                                                            Height="28"
-                                                            Background="Transparent"
-                                                            BorderThickness="0"
-                                                            Cursor="Hand"
+                                                    <!-- Delete Task Button -->
+                                                    <Button Style="{StaticResource TaskDeleteButton}"
                                                             ToolTip="Delete Task"
                                                             Command="{Binding DataContext.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding}">
@@ -1115,12 +1230,21 @@
                                                     <Button Content="✕"
                                                             Margin="6,0,0,0"
                                                             FontSize="10"
+                                                            Padding="0"
                                                             Background="Transparent"
                                                             Foreground="#F38BA8"
                                                             BorderThickness="0"
                                                             Cursor="Hand"
                                                             Command="{Binding DataContext.RemoveReminderCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                            CommandParameter="{Binding}" />
+                                                            CommandParameter="{Binding}">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="Transparent" Padding="2,0">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
                                                 </StackPanel>
                                             </Border>
                                         </DataTemplate>

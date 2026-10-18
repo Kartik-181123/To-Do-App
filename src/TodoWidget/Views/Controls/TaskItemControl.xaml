@@ -152,9 +152,10 @@
 
             
             <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Width="20"
-                        Height="20"
+                <Button Width="22"
+                        Height="22"
                         Margin="2,0,2,0"
+                        Padding="0"
                         Background="Transparent"
                         BorderThickness="0"
                         Cursor="Hand"
@@ -164,7 +165,7 @@
                         CommandParameter="{Binding Task, ElementName=RootTaskItem}">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="VnBorder" CornerRadius="4" Background="#181825" BorderBrush="#A6E3A1" BorderThickness="1">
+                            <Border x:Name="VnBorder" CornerRadius="4" Background="#181825" BorderBrush="#252A42" BorderThickness="1">
                                 <TextBlock Text="▶"
                                            FontSize="9"
                                            Foreground="#A6E3A1"
@@ -173,16 +174,18 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="VnBorder" Property="Background" Value="#313244" />
+                                    <Setter TargetName="VnBorder" Property="Background" Value="#132B22" />
+                                    <Setter TargetName="VnBorder" Property="BorderBrush" Value="#10B981" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
                 
-                <Button Width="20"
-                        Height="20"
+                <Button Width="22"
+                        Height="22"
                         Margin="4,0,0,0"
+                        Padding="0"
                         Background="Transparent"
                         BorderThickness="0"
                         Cursor="Hand"
@@ -191,17 +194,18 @@
                         CommandParameter="{Binding Task, ElementName=RootTaskItem}">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="BtnBorder" CornerRadius="4" Background="Transparent">
+                            <Border x:Name="BtnBorder" CornerRadius="4" Background="#181825" BorderBrush="#252A42" BorderThickness="1">
                                 <TextBlock Text="✕"
-                                           FontSize="11"
+                                           FontSize="10"
                                            FontWeight="Bold"
-                                           Foreground="#6C7086"
+                                           Foreground="#9BA3C7"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center" />
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="BtnBorder" Property="Background" Value="#3D2029" />
+                                    <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#F38BA8" />
                                     <Setter Property="Foreground" Value="#F38BA8" />
                                 </Trigger>
                             </ControlTemplate.Triggers>

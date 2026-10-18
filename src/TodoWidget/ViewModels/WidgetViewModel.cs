@@ -416,6 +416,7 @@ public class WidgetViewModel : ObservableObject
             task.CompletedAt = DateTime.Now;
         }
 
+        task.UpdatedAt = DateTime.Now;
         _database.UpsertTask(task);
         RefreshTasks();
         RefreshStreak();

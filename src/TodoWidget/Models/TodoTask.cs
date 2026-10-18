@@ -1,9 +1,12 @@
+using System.Text.Json.Serialization;
 using LiteDB;
+using TodoWidget.Helpers;
 
 namespace TodoWidget.Models;
 public class TodoTask
 {
     [BsonId]
+    [JsonConverter(typeof(ObjectIdJsonConverter))]
     public ObjectId Id { get; set; } = ObjectId.NewObjectId();
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;

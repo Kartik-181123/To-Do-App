@@ -69,6 +69,39 @@ public class AppDatabase : IDisposable
             Tasks.EnsureIndex(t => t.Status);
             Tasks.EnsureIndex(t => t.DueDate);
             Tasks.EnsureIndex(t => t.SortOrder);
+            DeduplicateTasks();
+        }
+    }
+
+    public void DeduplicateTasks()
+    {
+        lock (_syncLock)
+        {
+            var all = Tasks.FindAll().ToList();
+            if (all.Count <= 1) return;
+
+            // Group by normalized title and rough creation minute to detect duplicated sync tasks
+            var groups = all.GroupBy(t => new
+            {
+                Title = t.Title?.Trim().ToLowerInvariant() ?? string.Empty,
+                CreatedMinute = new DateTime(t.CreatedAt.Year, t.CreatedAt.Month, t.CreatedAt.Day, t.CreatedAt.Hour, t.CreatedAt.Minute, 0)
+            }).Where(g => g.Count() > 1);
+
+            foreach (var g in groups)
+            {
+                // Keep the completed task if any, or the newest updated task
+                var keep = g.OrderByDescending(t => t.Status == TodoTaskStatus.Completed ? 1 : 0)
+                            .ThenByDescending(t => t.UpdatedAt)
+                            .First();
+
+                foreach (var duplicate in g)
+                {
+                    if (duplicate.Id != keep.Id)
+                    {
+                        Tasks.Delete(duplicate.Id);
+                    }
+                }
+            }
         }
     }
     public List<TodoTask> GetAllTasks()

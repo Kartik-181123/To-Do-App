@@ -16,7 +16,7 @@ using TodoWidget.Models;
 
 public class SyncPayload
 {
-    public string AppVersion { get; set; } = "4.0.0";
+    public string AppVersion { get; set; } = "4.2.0";
     public DateTime SyncedAtUtc { get; set; } = DateTime.UtcNow;
     public StreakData? Streak { get; set; }
     public List<TodoTask> Tasks { get; set; } = new();
@@ -28,6 +28,13 @@ public class GitHubSyncService : ObservableObject
     public static GitHubSyncService Instance => _lazy.Value;
 
     public static event Action? StaticSyncCompleted;
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        WriteIndented = false,
+        Converters = { new ObjectIdJsonConverter() }
+    };
 
     private const string GistFilename = "todo-app-sync-data.json";
     private readonly HttpClient _httpClient;
@@ -234,11 +241,11 @@ public class GitHubSyncService : ObservableObject
                 {
                     try
                     {
-                        remotePayload = JsonSerializer.Deserialize<SyncPayload>(rawContent);
+                        remotePayload = JsonSerializer.Deserialize<SyncPayload>(rawContent, JsonOptions);
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // Ignore corrupt json and recreate
+                        Debug.WriteLine($"[GitHubSync] Deserialization error: {ex.Message}");
                     }
                 }
             }
@@ -262,16 +269,31 @@ public class GitHubSyncService : ObservableObject
                 foreach (var rTask in remotePayload.Tasks)
                 {
                     string key = rTask.Id.ToString();
-                    if (mergedTasksMap.TryGetValue(key, out var localMatch))
+                    TodoTask? localMatch = null;
+
+                    if (mergedTasksMap.TryGetValue(key, out var matchById))
                     {
-                        // Priority to completed state or newer update time
+                        localMatch = matchById;
+                    }
+                    else
+                    {
+                        // Match by title and creation time to prevent duplicates from different ID representations
+                        localMatch = localTasks.FirstOrDefault(t =>
+                            string.Equals(t.Title?.Trim(), rTask.Title?.Trim(), StringComparison.OrdinalIgnoreCase) &&
+                            Math.Abs((t.CreatedAt - rTask.CreatedAt).TotalSeconds) < 15);
+                    }
+
+                    if (localMatch != null)
+                    {
+                        // Priority to completed state: NEVER revert a completed task to pending!
                         if (rTask.Status == TodoTaskStatus.Completed && localMatch.Status != TodoTaskStatus.Completed)
                         {
                             localMatch.Status = TodoTaskStatus.Completed;
                             localMatch.CompletedAt = rTask.CompletedAt ?? DateTime.Now;
+                            localMatch.UpdatedAt = DateTime.Now;
                             database.UpsertTask(localMatch);
                         }
-                        else if (rTask.UpdatedAt > localMatch.UpdatedAt)
+                        else if (localMatch.Status != TodoTaskStatus.Completed && rTask.UpdatedAt > localMatch.UpdatedAt)
                         {
                             localMatch.Title = rTask.Title;
                             localMatch.Description = rTask.Description;
@@ -290,6 +312,9 @@ public class GitHubSyncService : ObservableObject
                     }
                 }
             }
+
+            // Deduplicate local database in case older sync versions created duplicates
+            database.DeduplicateTasks();
 
             // Merge streak
             if (remotePayload?.Streak != null)
@@ -328,13 +353,13 @@ public class GitHubSyncService : ObservableObject
 
             var newPayload = new SyncPayload
             {
-                AppVersion = "4.0.0",
+                AppVersion = "4.2.0",
                 SyncedAtUtc = DateTime.UtcNow,
                 Streak = updatedStreak,
                 Tasks = updatedTasks
             };
 
-            string serialized = JsonSerializer.Serialize(newPayload, new JsonSerializerOptions { WriteIndented = false });
+            string serialized = JsonSerializer.Serialize(newPayload, JsonOptions);
 
             var patchBody = new
             {
@@ -423,7 +448,7 @@ public class GitHubSyncService : ObservableObject
             // Not found, create private Gist
             var initialPayload = new SyncPayload
             {
-                AppVersion = "4.0.0",
+                AppVersion = "4.2.0",
                 SyncedAtUtc = DateTime.UtcNow,
                 Streak = AppDatabase.Instance.GetStreakData(),
                 Tasks = AppDatabase.Instance.GetAllTasks()
@@ -435,7 +460,7 @@ public class GitHubSyncService : ObservableObject
                 @public = false,
                 files = new Dictionary<string, object>
                 {
-                    { GistFilename, new { content = JsonSerializer.Serialize(initialPayload) } }
+                    { GistFilename, new { content = JsonSerializer.Serialize(initialPayload, JsonOptions) } }
                 }
             };
 

@@ -20,6 +20,14 @@ Unlike modern productivity tools that consume hundreds of megabytes of RAM runni
 
 ---
 
+## What's New in 4.2.0 (UI Fixes & Bug Fixes)
+
+- Action Button Visibility Restored: Fixed a critical layout clipping bug where inherited button padding compressed small action buttons (edit, delete, voice note, refresh) down to zero width. Buttons now feature dedicated styling with distinct borders, centered glyphs, and responsive hover highlights.
+- Prevented Completed Tasks from Reappearing: Resolved an issue where completing a task could cause it to reappear as a new pending task during cloud sync. Fixed LiteDB `ObjectId` serialization across devices, added strict completion-state precedence, and implemented self-healing database de-duplication.
+- Widget Action Controls: Upgraded desktop widget task buttons with clean dark containers, subtle borders, and clear hover feedback.
+
+---
+
 ## What's New in 4.1.0 (Bug Fix Release)
 
 - Fixed Instant Startup Crash: Resolved a XAML initialization exception (invalid MultiBinding markup) on the desktop widget's daily progress bar that caused the application to terminate immediately upon launch.

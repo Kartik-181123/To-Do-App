@@ -315,8 +315,14 @@ public class DashboardViewModel : ObservableObject
             target.CompletedAt = DateTime.Now;
         }
 
+        target.UpdatedAt = DateTime.Now;
         _database.UpsertTask(target);
         RefreshAll();
+
+        if (GitHubSyncService.Instance.IsConnected)
+        {
+            _ = Task.Run(async () => await GitHubSyncService.Instance.SyncNowAsync().ConfigureAwait(false));
+        }
     }
 
     private void RunOnDispatcher(Action action)
