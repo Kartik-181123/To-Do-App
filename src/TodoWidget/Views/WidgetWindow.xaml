@@ -7,8 +7,8 @@
         xmlns:converters="clr-namespace:TodoWidget.Converters"
         mc:Ignorable="d"
         Title="To-Do"
-        Width="250"
-        Height="250"
+        Width="260"
+        Height="270"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
@@ -21,8 +21,8 @@
         <converters:PriorityToBrushConverter x:Key="PriorityToBrush" />
 
         <Style x:Key="HeaderIconButton" TargetType="Button">
-            <Setter Property="Width" Value="26" />
-            <Setter Property="Height" Value="26" />
+            <Setter Property="Width" Value="24" />
+            <Setter Property="Height" Value="24" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Cursor" Value="Hand" />
@@ -34,7 +34,34 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="BtnBorder" Property="Background" Value="#313244" />
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#252A3F" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Focus Mode Header Button Style -->
+        <Style x:Key="FocusHeaderButton" TargetType="Button">
+            <Setter Property="Width" Value="24" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BtnBorder" CornerRadius="6" Background="Transparent">
+                            <TextBlock x:Name="Icon" Text="⌖" FontSize="13" FontWeight="Bold" Foreground="#89B4FA" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsFocusMode}" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#3B82F6" />
+                                <Setter TargetName="Icon" Property="Foreground" Value="#FFFFFF" />
+                            </DataTrigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#252A3F" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -43,38 +70,40 @@
         </Style>
     </Window.Resources>
 
-    
+    <!-- Main Widget Container -->
     <Border Margin="8">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="14"
+            <DropShadowEffect BlurRadius="18"
                               Color="#000000"
-                              Opacity="0.4"
+                              Opacity="0.5"
                               ShadowDepth="4" />
         </Border.Effect>
 
         <Border x:Name="MainWidgetBorder"
                 CornerRadius="14"
-                Background="#1E1E2E"
-                BorderBrush="#313244"
+                Background="#10121D"
+                BorderBrush="#23273D"
                 BorderThickness="1">
 
             <Grid>
                 <Grid.RowDefinitions>
                     <!-- Header -->
                     <RowDefinition Height="Auto" />
-                    <!-- Task List Area -->
+                    <!-- Daily Progress Bar -->
+                    <RowDefinition Height="Auto" />
+                    <!-- Content View (Normal vs Focus Mode) -->
                     <RowDefinition Height="*" />
-                    <!-- Minimal Quick-Add Bar -->
+                    <!-- Quick-Add Bar (Normal Mode only) -->
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <!-- Minimal Header -->
+                <!-- Modern Minimal Header -->
                 <Border Grid.Row="0"
                         x:Name="HeaderBar"
-                        Background="#181825"
+                        Background="#0D0F18"
                         CornerRadius="13,13,0,0"
                         Padding="10,6"
-                        BorderBrush="#25263B"
+                        BorderBrush="#1D2134"
                         BorderThickness="0,0,0,1"
                         MouseLeftButtonDown="HeaderBar_MouseLeftButtonDown">
                     <Grid>
@@ -87,98 +116,259 @@
                         <!-- Title & Drag Handle -->
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="⋮⋮"
-                                       FontSize="12"
-                                       Foreground="#585B70"
+                                       FontSize="11"
+                                       Foreground="#4C5375"
                                        Margin="0,0,6,0"
                                        VerticalAlignment="Center"
                                        Cursor="SizeAll" />
                             <TextBlock Text="To-Do"
-                                       FontSize="12.5"
+                                       FontSize="12"
                                        FontWeight="SemiBold"
-                                       Foreground="#CDD6F4"
+                                       Foreground="#E0E5FB"
                                        VerticalAlignment="Center" />
                         </StackPanel>
 
-                        <!-- Streak Counter -->
+                        <!-- Streak Pill -->
                         <controls:StreakBadge Grid.Column="1"
                                               StreakCount="{Binding CurrentStreak}"
                                               Margin="0,0,6,0"
                                               VerticalAlignment="Center" />
 
-                        <!-- Window Buttons -->
+                        <!-- Window & Focus Buttons -->
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <!-- Focus Mode Toggle Button -->
+                            <Button Style="{StaticResource FocusHeaderButton}"
+                                    ToolTip="Toggle Focus Mode (Anti-Procrastination)"
+                                    Command="{Binding ToggleFocusModeCommand}"
+                                    Margin="0,0,2,0" />
+
+                            <!-- Dashboard Button -->
                             <Button Style="{StaticResource HeaderIconButton}"
                                     ToolTip="Open Dashboard"
-                                    Width="22"
-                                    Height="22"
                                     Command="{Binding OpenDashboardCommand}"
                                     Margin="0,0,2,0">
-                                <TextBlock Text="⚙" FontSize="12" Foreground="#A6ADC8" />
+                                <TextBlock Text="⚙" FontSize="11.5" Foreground="#9BA3C7" />
                             </Button>
 
+                            <!-- Hide Widget Button -->
                             <Button Style="{StaticResource HeaderIconButton}"
                                     ToolTip="Hide Widget"
-                                    Width="22"
-                                    Height="22"
                                     Click="CloseButton_Click">
-                                <TextBlock Text="✕" FontSize="11" Foreground="#A6ADC8" />
+                                <TextBlock Text="✕" FontSize="10.5" Foreground="#9BA3C7" />
                             </Button>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Tasks Area -->
-                <Grid Grid.Row="1" Margin="6,4,6,4">
-                    <!-- Empty State -->
-                    <Border Visibility="{Binding HasTasks, Converter={StaticResource InvBoolToVis}}"
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Center"
-                            Padding="12">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="✓"
-                                       FontSize="18"
-                                       FontWeight="Bold"
-                                       Foreground="#3B82F6"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,0,0,4" />
-                            <TextBlock Text="All caught up!"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       Foreground="#CDD6F4"
-                                       HorizontalAlignment="Center" />
-                            <TextBlock Text="Add a task below"
-                                       FontSize="10.5"
-                                       Foreground="#6C7086"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,2,0,0" />
-                        </StackPanel>
-                    </Border>
+                <!-- Integrated Daily Progress Bar -->
+                <Border Grid.Row="1"
+                        Height="3"
+                        Background="#151828"
+                        ToolTip="{Binding DailyProgressText}">
+                    <Grid HorizontalAlignment="Left">
+                        <Grid.Width>
+                            <MultiBinding Converter="{x:Null}">
+                                <!-- Direct percent calculation via code-behind / binding handled by border -->
+                            </MultiBinding>
+                        </Grid.Width>
+                        <ProgressBar Height="3"
+                                     Minimum="0"
+                                     Maximum="100"
+                                     Value="{Binding DailyProgressPercentage, Mode=OneWay}"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     Foreground="{Binding IsDailyComplete, Converter={StaticResource PriorityToBrush}}">
+                            <ProgressBar.Style>
+                                <Style TargetType="ProgressBar">
+                                    <Setter Property="Foreground" Value="#3B82F6" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsDailyComplete}" Value="True">
+                                            <Setter Property="Foreground" Value="#10B981" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ProgressBar.Style>
+                        </ProgressBar>
+                    </Grid>
+                </Border>
 
-                    <!-- Scrollable Tasks -->
-                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  Visibility="{Binding HasTasks, Converter={StaticResource BoolToVis}}">
-                        <ItemsControl ItemsSource="{Binding Tasks}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <controls:TaskItemControl Task="{Binding}"
-                                                              CompleteCommand="{Binding DataContext.CompleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                              DeleteCommand="{Binding DataContext.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                              VoiceNoteCommand="{Binding DataContext.ToggleVoiceNoteCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
+                <!-- Main Content Area: Switch between Normal List and Focus Mode -->
+                <Grid Grid.Row="2" Margin="6,5,6,5">
+
+                    <!-- ================= NORMAL LIST MODE ================= -->
+                    <Grid Visibility="{Binding IsFocusMode, Converter={StaticResource InvBoolToVis}}">
+                        <!-- Empty State -->
+                        <Border Visibility="{Binding HasTasks, Converter={StaticResource InvBoolToVis}}"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center"
+                                Padding="12">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="✓"
+                                           FontSize="20"
+                                           FontWeight="Bold"
+                                           Foreground="#3B82F6"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,4" />
+                                <TextBlock Text="All caught up!"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Foreground="#E0E5FB"
+                                           HorizontalAlignment="Center" />
+                                <TextBlock Text="Add a task below"
+                                           FontSize="10.5"
+                                           Foreground="#60678A"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,2,0,0" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Scrollable Tasks -->
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Visibility="{Binding HasTasks, Converter={StaticResource BoolToVis}}">
+                            <ItemsControl ItemsSource="{Binding Tasks}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <controls:TaskItemControl Task="{Binding}"
+                                                                  CompleteCommand="{Binding DataContext.CompleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                  DeleteCommand="{Binding DataContext.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                  VoiceNoteCommand="{Binding DataContext.ToggleVoiceNoteCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <!-- ================= FOCUS MODE (ANTI-PROCRASTINATION) ================= -->
+                    <Border Visibility="{Binding IsFocusMode, Converter={StaticResource BoolToVis}}"
+                            Background="#141724"
+                            CornerRadius="10"
+                            BorderBrush="#252A42"
+                            BorderThickness="1"
+                            Padding="12,10">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <!-- Mode Header -->
+                                <RowDefinition Height="Auto" />
+                                <!-- Single Task Info -->
+                                <RowDefinition Height="*" />
+                                <!-- Countdown Timer Display -->
+                                <RowDefinition Height="Auto" />
+                                <!-- Timer Controls -->
+                                <RowDefinition Height="Auto" />
+                                <!-- Complete Task Button -->
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Focus Pill Header -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,6">
+                                <Border Background="#1C2136"
+                                        CornerRadius="5"
+                                        Padding="8,2"
+                                        BorderBrush="#3B82F6"
+                                        BorderThickness="1">
+                                    <TextBlock Text="FOCUS SPRINT"
+                                               FontSize="9.5"
+                                               FontWeight="Bold"
+                                               Foreground="#89B4FA" />
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Single Task Display -->
+                            <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4,0,4,6">
+                                <TextBlock Text="{Binding FocusTask.Title, FallbackValue='No pending tasks!'}"
+                                           FontSize="13"
+                                           FontWeight="SemiBold"
+                                           Foreground="#FFFFFF"
+                                           TextAlignment="Center"
+                                           TextWrapping="Wrap"
+                                           MaxHeight="48"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding FocusTask.Priority, StringFormat='Priority: {0}'}"
+                                           FontSize="10"
+                                           Foreground="#89B4FA"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,3,0,0"
+                                           Visibility="{Binding FocusTask, Converter={StaticResource BoolToVis}}" />
+                            </StackPanel>
+
+                            <!-- Timer Countdown -->
+                            <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,0,0,6">
+                                <TextBlock Text="{Binding TimerDisplay}"
+                                           FontSize="30"
+                                           FontWeight="Bold"
+                                           Foreground="#3B82F6"
+                                           HorizontalAlignment="Center" />
+                            </StackPanel>
+
+                            <!-- Sprint / Pomodoro Mode Switch & Play/Pause -->
+                            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,8">
+                                <Button Content="2m"
+                                        Padding="7,2"
+                                        FontSize="10"
+                                        FontWeight="SemiBold"
+                                        Margin="0,0,4,0"
+                                        Command="{Binding SetTimerModeCommand}"
+                                        CommandParameter="Sprint"
+                                        Background="#1C2033"
+                                        Foreground="#CDD6F4" />
+                                <Button Content="25m"
+                                        Padding="7,2"
+                                        FontSize="10"
+                                        FontWeight="SemiBold"
+                                        Margin="0,0,6,0"
+                                        Command="{Binding SetTimerModeCommand}"
+                                        CommandParameter="Pomodoro"
+                                        Background="#1C2033"
+                                        Foreground="#CDD6F4" />
+
+                                <Button Width="26"
+                                        Height="22"
+                                        Margin="0,0,4,0"
+                                        Background="#3B82F6"
+                                        Foreground="#FFFFFF"
+                                        Command="{Binding ToggleTimerCommand}"
+                                        ToolTip="Start / Pause Timer">
+                                    <TextBlock Text="▶" FontSize="10" />
+                                </Button>
+
+                                <Button Width="24"
+                                        Height="22"
+                                        Background="#252A3F"
+                                        Foreground="#CDD6F4"
+                                        Command="{Binding ResetTimerCommand}"
+                                        ToolTip="Reset Timer">
+                                    <TextBlock Text="⟳" FontSize="11" />
+                                </Button>
+                            </StackPanel>
+
+                            <!-- Complete Focused Task Button -->
+                            <Button Grid.Row="4"
+                                    Height="28"
+                                    Background="#10B981"
+                                    Foreground="#FFFFFF"
+                                    FontSize="11.5"
+                                    FontWeight="SemiBold"
+                                    Command="{Binding CompleteFocusTaskCommand}"
+                                    IsEnabled="{Binding FocusTask, Converter={StaticResource BoolToVis}}">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="✓ " FontWeight="Bold" />
+                                    <TextBlock Text="Complete Task" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </Border>
                 </Grid>
 
-                <!-- Minimal Compact Quick-Add Bar -->
-                <Border Grid.Row="2"
+                <!-- Minimal Compact Quick-Add Bar (Normal Mode) -->
+                <Border Grid.Row="3"
                         x:Name="QuickAddBar"
-                        Background="#181825"
+                        Background="#0D0F18"
                         CornerRadius="0,0,13,13"
                         Padding="6,5"
-                        BorderBrush="#25263B"
-                        BorderThickness="0,1,0,0">
+                        BorderBrush="#1D2134"
+                        BorderThickness="0,1,0,0"
+                        Visibility="{Binding IsFocusMode, Converter={StaticResource InvBoolToVis}}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -186,9 +376,9 @@
                         </Grid.ColumnDefinitions>
 
                         <Border Grid.Column="0"
-                                Background="#1E1E2E"
+                                Background="#141724"
                                 CornerRadius="6"
-                                BorderBrush="#313244"
+                                BorderBrush="#252A3F"
                                 BorderThickness="1"
                                 Margin="0,0,4,0">
                             <TextBox x:Name="QuickAddInput"
@@ -196,8 +386,8 @@
                                      Background="Transparent"
                                      BorderThickness="0"
                                      Padding="6,4"
-                                     FontSize="11.5"
-                                     Foreground="#CDD6F4"
+                                     FontSize="11"
+                                     Foreground="#E0E5FB"
                                      CaretBrush="#3B82F6"
                                      KeyDown="QuickAddInput_KeyDown">
                                 <TextBox.Style>
@@ -209,7 +399,7 @@
                                                         <VisualBrush AlignmentX="Left" Stretch="None">
                                                             <VisualBrush.Visual>
                                                                 <TextBlock Text="+ Quick add task..."
-                                                                           Foreground="#585B70"
+                                                                           Foreground="#4C5375"
                                                                            FontSize="11"
                                                                            Padding="7,4" />
                                                             </VisualBrush.Visual>

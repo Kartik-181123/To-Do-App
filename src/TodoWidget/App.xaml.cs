@@ -68,6 +68,15 @@ public partial class App : Application
             OpenDashboard();
         }
 
+        if (settings.AutoSyncEnabled && GitHubSyncService.Instance.IsConnected)
+        {
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(3000);
+                await GitHubSyncService.Instance.SyncNowAsync().ConfigureAwait(false);
+            });
+        }
+
         if (settings.CheckForUpdatesOnStartup)
         {
             _ = Task.Run(async () =>

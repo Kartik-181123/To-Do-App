@@ -1,6 +1,6 @@
 # To-Do
 
-A clean, ultra-lightweight desktop to-do list widget and task organizer for Windows.
+A modern, ultra-lightweight desktop to-do list widget, focus suite, and task organizer for Windows.
 
 I built this app with a single goal in mind: killing procrastination. I often found myself getting distracted on my PC and completely forgetting what I actually sat down to do. This app sits on your desktop, keeps your tasks right in front of you, and reminds you when things are due so you stay on track.
 
@@ -20,17 +20,29 @@ Unlike modern productivity tools that consume hundreds of megabytes of RAM runni
 
 ---
 
-## What It Does
+## What's New in 4.0.0 (Major Release)
+
+- Complete UI Overhaul: Re-engineered with a modern Obsidian Glass design, refined navigation rails, smooth micro-interactions, and fluid transitions that can be toggled on or off in Settings.
+- GitHub Cloud Sync (Account System): Connect using a personal access token to automatically sync your tasks, daily streaks, and preferences across all your Windows devices via a secure private GitHub Gist.
+- Daily Completion Progress Bar: An integrated animated progress bar embedded directly below the widget header, calculating your real-time daily progress with color transitions upon hitting 100%.
+- Anti-Procrastination Focus Mode: A dedicated single-task view mode that eliminates distraction by collapsing your task list and presenting only the next critical priority task.
+- 2-Minute Kickstart & Pomodoro Timers: Overcome task initiation inertia with an integrated 120-second Kickstart countdown sprint or run focused 25-minute Pomodoro sessions.
+- Silent Auto-Update & Restart: When updating inside the app, the installer downloads and installs seamlessly in the background without opening the setup wizard, then restarts the new version automatically.
+
+---
+
+## Key Features
 
 - Desktop Widget: A compact widget that lives right on your desktop. You can pin it directly behind all open windows like interactive wallpaper, or let it float comfortably on top.
-- Interactive Desktop Pinning: Click, check tasks, and play voice notes directly from your desktop even while pinned.
+- Interactive Desktop Pinning: Click, check tasks, and play voice notes directly from your desktop even while pinned behind other windows.
+- GitHub Account Sync: Two-way cloud synchronization across all your computers with zero external server dependencies.
 - Recurring Schedules: Set up tasks that repeat on chosen days of the week with custom start and end times in 12-hour AM/PM format.
 - Voice Notes: Record and attach audio memos to any task. Listen to them right from the dashboard or directly from the desktop widget.
 - Widget Appearance & Themes: Customize widget background colors, opacity, corner radius, fonts, and dimensions to blend into your desktop wallpaper.
 - Configurable Animations: Smooth transitions and visual feedback that can be enabled or disabled with a single toggle in Settings.
 - Smart Reminders: Native Windows notifications alert you before tasks are due, with one-click snooze and completion actions.
 - Daily Streaks: Complete all scheduled tasks before midnight to build your daily streak.
-- In-App Auto Updates: Seamlessly check for new GitHub releases and install updates directly from within the app.
+- In-App Auto Updates: Seamlessly check for new GitHub releases, install updates silently, and restart automatically.
 
 ---
 
@@ -40,28 +52,35 @@ Unlike modern productivity tools that consume hundreds of megabytes of RAM runni
    - Type your task title directly into the input bar at the bottom of the widget and press Enter.
    - For recurring schedules, AM/PM times, priorities, or voice notes, open the dashboard and click "+ New Task".
 
-2. Recurring Tasks & Time Entry
+2. Anti-Procrastination Focus Mode & Sprint Timer
+   - Click the target icon on the widget header to switch into Focus Mode.
+   - The widget focuses on your top-priority pending task and opens the sprint timer.
+   - Click "2m" for a 120-second initiation kickstart sprint or "25m" for a Pomodoro session, then press Play.
+   - Mark the task done with one click when finished!
+
+3. GitHub Cloud Sync
+   - Open the Dashboard and navigate to the "Account & Sync" tab.
+   - Enter a GitHub Personal Access Token (classic) with the `gist` permission.
+   - Click "Connect & Sync Account" to link your account and enable automatic cloud backup.
+
+4. Recurring Tasks & Time Entry
    - In the task editor, check "Recurring Schedule" to pick days (e.g. Mon / Wed / Fri).
    - Use the dropdown or type your start and end times in standard format (e.g. 9:00 AM, 2:30 PM).
 
-3. Recording Voice Notes
+5. Recording Voice Notes
    - While creating or editing a task, click "Record Voice Note" to speak your notes.
    - Preview your audio note and save. Play it back directly from the widget or dashboard.
 
-4. Widget Placement & Docking
+6. Widget Placement & Docking
    - Drag the widget anywhere by clicking and holding the top bar.
    - Open Settings to dock the widget to preset corners (Top-Right, Top-Left, Bottom-Right, Bottom-Left, Center-Right) or customize its dimensions.
    - Choose between "Float Always on Top" and "Pin Directly to Desktop".
 
-5. Animations & Appearance
-   - In Settings under "System & Startup", toggle smooth UI animations on or off according to your preference.
-   - Adjust widget background colors, opacity, and typography under "Widget Appearance".
+7. Silent Auto-Update
+   - When a new update is released, you will be prompted directly in the Dashboard.
+   - Click "Download & Install Silently" to let the app update and relaunch seamlessly in the background.
 
-6. In-App Updates
-   - Open Settings from the gear icon.
-   - Under "App Updates & Version", click "Check for Updates" to install the latest release automatically.
-
-7. System Tray
+8. System Tray
    - Closing the dashboard minimizes the app to your Windows system tray with its custom icon.
    - Right-click the tray icon to quickly reopen the dashboard, toggle widget visibility, or exit.
 
@@ -71,7 +90,7 @@ Unlike modern productivity tools that consume hundreds of megabytes of RAM runni
 
 ### Option 1: Standalone Installer (Recommended)
 1. Head over to the Releases section on GitHub.
-2. Download `ToDoSetup-3.0.0.exe`.
+2. Download `ToDoSetup-4.0.0.exe`.
 3. Run the installer and follow the on-screen steps. It creates desktop shortcuts, start menu entries, and registers the system tray companion.
 
 ### Option 2: Building from Source

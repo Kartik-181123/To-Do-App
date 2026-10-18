@@ -42,6 +42,27 @@ public class SettingsViewModel : ObservableObject
     private string _statusMessage = string.Empty;
     private bool _checkForUpdatesOnStartup = true;
     private bool _enableAnimations = true;
+    private bool _autoSyncEnabled = true;
+    private int _focusSprintMinutes = 2;
+    private int _focusPomodoroMinutes = 25;
+
+    public bool AutoSyncEnabled
+    {
+        get => _autoSyncEnabled;
+        set => SetProperty(ref _autoSyncEnabled, value);
+    }
+
+    public int FocusSprintMinutes
+    {
+        get => _focusSprintMinutes;
+        set => SetProperty(ref _focusSprintMinutes, Math.Clamp(value, 1, 30));
+    }
+
+    public int FocusPomodoroMinutes
+    {
+        get => _focusPomodoroMinutes;
+        set => SetProperty(ref _focusPomodoroMinutes, Math.Clamp(value, 5, 90));
+    }
 
     public UpdateService Updater => UpdateService.Instance;
     public string CurrentVersionText => UpdateService.CurrentVersionDisplay;
@@ -302,6 +323,9 @@ public class SettingsViewModel : ObservableObject
         ShowStreakOnWidget = settings.ShowStreakOnWidget;
         DayEndHour = settings.DayEndHour;
         CheckForUpdatesOnStartup = settings.CheckForUpdatesOnStartup;
+        AutoSyncEnabled = settings.AutoSyncEnabled;
+        FocusSprintMinutes = settings.FocusSprintMinutes > 0 ? settings.FocusSprintMinutes : 2;
+        FocusPomodoroMinutes = settings.FocusPomodoroMinutes > 0 ? settings.FocusPomodoroMinutes : 25;
 
         var intervals = settings.ReminderIntervalsMinutes != null && settings.ReminderIntervalsMinutes.Count > 0
             ? settings.ReminderIntervalsMinutes
@@ -339,6 +363,9 @@ public class SettingsViewModel : ObservableObject
         settings.ShowStreakOnWidget = ShowStreakOnWidget;
         settings.DayEndHour = DayEndHour;
         settings.CheckForUpdatesOnStartup = CheckForUpdatesOnStartup;
+        settings.AutoSyncEnabled = AutoSyncEnabled;
+        settings.FocusSprintMinutes = FocusSprintMinutes;
+        settings.FocusPomodoroMinutes = FocusPomodoroMinutes;
         settings.ReminderIntervalsMinutes = ReminderIntervals.ToList();
 
         if (SettingsManager.Instance != null)
@@ -378,6 +405,9 @@ public class SettingsViewModel : ObservableObject
         ShowStreakOnWidget = true;
         DayEndHour = 24;
         CheckForUpdatesOnStartup = true;
+        AutoSyncEnabled = true;
+        FocusSprintMinutes = 2;
+        FocusPomodoroMinutes = 25;
 
         ReminderIntervals = new ObservableCollection<int> { 5, 15, 30 };
 

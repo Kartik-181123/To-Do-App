@@ -15,15 +15,15 @@
             <converters:IntToStreakTextConverter x:Key="AppStreakTextConverter" />
 
             
-            <Color x:Key="BgColor">#181825</Color>
-            <Color x:Key="SurfaceColor">#1E1E2E</Color>
-            <Color x:Key="SurfaceHoverColor">#313244</Color>
-            <Color x:Key="BorderColor">#45475A</Color>
+            <Color x:Key="BgColor">#0E101A</Color>
+            <Color x:Key="SurfaceColor">#141724</Color>
+            <Color x:Key="SurfaceHoverColor">#1E2235</Color>
+            <Color x:Key="BorderColor">#23273D</Color>
             <Color x:Key="AccentColor">#3B82F6</Color>
             <Color x:Key="AccentHoverColor">#2563EB</Color>
-            <Color x:Key="TextColor">#CDD6F4</Color>
-            <Color x:Key="TextMutedColor">#A6ADC8</Color>
-            <Color x:Key="TextDimmedColor">#6C7086</Color>
+            <Color x:Key="TextColor">#E0E5FB</Color>
+            <Color x:Key="TextMutedColor">#9BA3C7</Color>
+            <Color x:Key="TextDimmedColor">#60678A</Color>
 
             
             <SolidColorBrush x:Key="BgBrush" Color="{StaticResource BgColor}" />

@@ -132,6 +132,18 @@ public class DashboardViewModel : ObservableObject
     public RelayCommand OpenSettingsCommand { get; }
     public RelayCommand RefreshCommand { get; }
 
+    // GitHub Cloud Sync & Account
+    public GitHubSyncService CloudSync => GitHubSyncService.Instance;
+    private string _gitHubTokenInput = string.Empty;
+    public string GitHubTokenInput
+    {
+        get => _gitHubTokenInput;
+        set => SetProperty(ref _gitHubTokenInput, value);
+    }
+    public RelayCommand ConnectGitHubCommand { get; }
+    public RelayCommand DisconnectGitHubCommand { get; }
+    public RelayCommand SyncNowCommand { get; }
+
     public string? CurrentlyPlayingVoiceNotePath => AudioService.Instance.CurrentPlayingPath;
     public DashboardViewModel(AppDatabase database, StreakService? streakService = null)
     {
@@ -158,8 +170,37 @@ public class DashboardViewModel : ObservableObject
                 AudioService.Instance.TogglePlay(task.VoiceNotePath);
             }
         });
-        OpenSettingsCommand = new RelayCommand(() => SelectedTabIndex = 2);
+        OpenSettingsCommand = new RelayCommand(() => SelectedTabIndex = 3);
         RefreshCommand = new RelayCommand(RefreshAll);
+
+        ConnectGitHubCommand = new RelayCommand(async () =>
+        {
+            if (!string.IsNullOrWhiteSpace(GitHubTokenInput))
+            {
+                bool success = await CloudSync.ConnectAccountAsync(GitHubTokenInput);
+                if (success)
+                {
+                    GitHubTokenInput = string.Empty;
+                    RefreshAll();
+                }
+            }
+        });
+
+        DisconnectGitHubCommand = new RelayCommand(() =>
+        {
+            CloudSync.DisconnectAccount();
+        });
+
+        SyncNowCommand = new RelayCommand(async () =>
+        {
+            await CloudSync.SyncNowAsync();
+            RefreshAll();
+        });
+
+        GitHubSyncService.StaticSyncCompleted += () =>
+        {
+            RunOnDispatcher(RefreshAll);
+        };
 
         AudioService.Instance.PlaybackStateChanged += () =>
         {

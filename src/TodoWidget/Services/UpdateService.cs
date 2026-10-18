@@ -43,7 +43,7 @@ public class UpdateService : ObservableObject
         get
         {
             var ver = Assembly.GetExecutingAssembly().GetName().Version;
-            return ver != null ? new Version(ver.Major, ver.Minor, Math.Max(0, ver.Build)) : new Version(3, 0, 0);
+            return ver != null ? new Version(ver.Major, ver.Minor, Math.Max(0, ver.Build)) : new Version(4, 0, 0);
         }
     }
 
@@ -250,12 +250,25 @@ public class UpdateService : ObservableObject
 
             fileStream.Close();
 
-            StatusMessage = "Starting installer...";
+            StatusMessage = "Installing update silently & restarting...";
+
+            string currentExe = Environment.ProcessPath ?? string.Empty;
+            string restartScript = Path.Combine(tempDir, "todo_silent_updater.bat");
+
+            string scriptContent = $@"@echo off
+start /wait """" ""{installerPath}"" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS
+timeout /t 1 > nul
+start """" ""{currentExe}""
+del ""%~f0""
+";
+            File.WriteAllText(restartScript, scriptContent);
 
             Process.Start(new ProcessStartInfo
             {
-                FileName = installerPath,
-                UseShellExecute = true
+                FileName = "cmd.exe",
+                Arguments = $"/c \"\"{restartScript}\"\"",
+                CreateNoWindow = true,
+                UseShellExecute = false
             });
 
             Application.Current?.Dispatcher?.Invoke(() =>

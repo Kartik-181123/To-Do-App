@@ -91,6 +91,9 @@ public partial class DashboardWindow : Window
                     NavStatsRadio.IsChecked = true;
                     break;
                 case 2:
+                    NavAccountRadio.IsChecked = true;
+                    break;
+                case 3:
                     NavSettingsRadio.IsChecked = true;
                     break;
             }
@@ -124,6 +127,7 @@ public partial class DashboardWindow : Window
 
         TasksTabView.Visibility = Visibility.Visible;
         StatsTabView.Visibility = Visibility.Collapsed;
+        AccountTabView.Visibility = Visibility.Collapsed;
         SettingsTabView.Visibility = Visibility.Collapsed;
         AnimateTabTransition(TasksTabView);
 
@@ -140,6 +144,7 @@ public partial class DashboardWindow : Window
 
         TasksTabView.Visibility = Visibility.Collapsed;
         StatsTabView.Visibility = Visibility.Visible;
+        AccountTabView.Visibility = Visibility.Collapsed;
         SettingsTabView.Visibility = Visibility.Collapsed;
         AnimateTabTransition(StatsTabView);
 
@@ -150,18 +155,36 @@ public partial class DashboardWindow : Window
         }
     }
 
+    private void NavAccount_Checked(object sender, RoutedEventArgs e)
+    {
+        if (AccountTabView == null) return;
+
+        TasksTabView.Visibility = Visibility.Collapsed;
+        StatsTabView.Visibility = Visibility.Collapsed;
+        AccountTabView.Visibility = Visibility.Visible;
+        SettingsTabView.Visibility = Visibility.Collapsed;
+        AnimateTabTransition(AccountTabView);
+
+        if (_viewModel != null)
+        {
+            _viewModel.SelectedTabIndex = 2;
+            _viewModel.CloudSync.LoadFromSettings();
+        }
+    }
+
     private void NavSettings_Checked(object sender, RoutedEventArgs e)
     {
         if (SettingsTabView == null) return;
 
         TasksTabView.Visibility = Visibility.Collapsed;
         StatsTabView.Visibility = Visibility.Collapsed;
+        AccountTabView.Visibility = Visibility.Collapsed;
         SettingsTabView.Visibility = Visibility.Visible;
         AnimateTabTransition(SettingsTabView);
 
         if (_viewModel != null)
         {
-            _viewModel.SelectedTabIndex = 2;
+            _viewModel.SelectedTabIndex = 3;
         }
     }
 

@@ -30,4 +30,17 @@ public class AppSettings
     public int DayEndHour { get; set; } = 0;
     public bool CheckForUpdatesOnStartup { get; set; } = true;
     public bool EnableAnimations { get; set; } = true;
+
+    // GitHub Cloud Sync & Account
+    public string GitHubToken { get; set; } = string.Empty;
+    public string GitHubUsername { get; set; } = string.Empty;
+    public string GitHubAvatarUrl { get; set; } = string.Empty;
+    public string GitHubGistId { get; set; } = string.Empty;
+    public DateTime? LastSyncUtc { get; set; }
+    public bool AutoSyncEnabled { get; set; } = true;
+
+    // Anti-Procrastination & Focus Mode
+    public bool IsFocusModeActive { get; set; } = false;
+    public int FocusSprintMinutes { get; set; } = 2;
+    public int FocusPomodoroMinutes { get; set; } = 25;
 }
