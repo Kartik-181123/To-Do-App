@@ -27,6 +27,42 @@ public partial class App : Application
     private NotificationService? _notificationService;
     private ReminderService? _reminderService;
     private StreakService? _streakService;
+
+    public App()
+    {
+        AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+        {
+            LogCrash(e.ExceptionObject as Exception, "AppDomain.UnhandledException");
+        };
+
+        DispatcherUnhandledException += (s, e) =>
+        {
+            LogCrash(e.Exception, "DispatcherUnhandledException");
+        };
+
+        TaskScheduler.UnobservedTaskException += (s, e) =>
+        {
+            LogCrash(e.Exception, "TaskScheduler.UnobservedTaskException");
+            e.SetObserved();
+        };
+    }
+
+    private static void LogCrash(Exception? ex, string source)
+    {
+        if (ex == null) return;
+        try
+        {
+            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TodoWidget");
+            Directory.CreateDirectory(dir);
+            string logFile = Path.Combine(dir, "crash.log");
+            string content = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{source}]\n{ex}\n\n";
+            File.AppendAllText(logFile, content);
+        }
+        catch
+        {
+        }
+    }
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -213,6 +249,24 @@ public partial class App : Application
 
     private void ExitApplication()
     {
+        try
+        {
+            _widgetWindow?.Close();
+        }
+        catch
+        {
+        }
+        _widgetWindow = null;
+
+        try
+        {
+            _dashboardWindow?.ForceClose();
+        }
+        catch
+        {
+        }
+        _dashboardWindow = null;
+
         Teardown();
         Shutdown();
     }

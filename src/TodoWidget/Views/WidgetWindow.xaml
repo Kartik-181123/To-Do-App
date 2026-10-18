@@ -165,31 +165,23 @@
                         Height="3"
                         Background="#151828"
                         ToolTip="{Binding DailyProgressText}">
-                    <Grid HorizontalAlignment="Left">
-                        <Grid.Width>
-                            <MultiBinding Converter="{x:Null}">
-                                <!-- Direct percent calculation via code-behind / binding handled by border -->
-                            </MultiBinding>
-                        </Grid.Width>
-                        <ProgressBar Height="3"
-                                     Minimum="0"
-                                     Maximum="100"
-                                     Value="{Binding DailyProgressPercentage, Mode=OneWay}"
-                                     BorderThickness="0"
-                                     Background="Transparent"
-                                     Foreground="{Binding IsDailyComplete, Converter={StaticResource PriorityToBrush}}">
-                            <ProgressBar.Style>
-                                <Style TargetType="ProgressBar">
-                                    <Setter Property="Foreground" Value="#3B82F6" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsDailyComplete}" Value="True">
-                                            <Setter Property="Foreground" Value="#10B981" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ProgressBar.Style>
-                        </ProgressBar>
-                    </Grid>
+                    <ProgressBar Height="3"
+                                 Minimum="0"
+                                 Maximum="100"
+                                 Value="{Binding DailyProgressPercentage, Mode=OneWay}"
+                                 BorderThickness="0"
+                                 Background="Transparent">
+                        <ProgressBar.Style>
+                            <Style TargetType="ProgressBar">
+                                <Setter Property="Foreground" Value="#3B82F6" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDailyComplete}" Value="True">
+                                        <Setter Property="Foreground" Value="#10B981" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ProgressBar.Style>
+                    </ProgressBar>
                 </Border>
 
                 <!-- Main Content Area: Switch between Normal List and Focus Mode -->

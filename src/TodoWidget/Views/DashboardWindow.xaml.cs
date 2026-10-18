@@ -42,10 +42,25 @@ public partial class DashboardWindow : Window
         {
         }
     }
+
+    private bool _isExplicitExit;
+
+    public void ForceClose()
+    {
+        _isExplicitExit = true;
+        Close();
+    }
+
     protected override void OnClosing(CancelEventArgs e)
     {
-        e.Cancel = true;
-        Hide();
+        if (!_isExplicitExit)
+        {
+            e.Cancel = true;
+            Hide();
+            return;
+        }
+
+        base.OnClosing(e);
     }
 
     private void OnRequestAddTask()

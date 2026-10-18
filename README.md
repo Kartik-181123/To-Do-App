@@ -20,6 +20,14 @@ Unlike modern productivity tools that consume hundreds of megabytes of RAM runni
 
 ---
 
+## What's New in 4.1.0 (Bug Fix Release)
+
+- Fixed Instant Startup Crash: Resolved a XAML initialization exception (invalid MultiBinding markup) on the desktop widget's daily progress bar that caused the application to terminate immediately upon launch.
+- Window State Hardening: Added defensive safeguards preventing illegal visibility updates during window close and move transitions.
+- Global Crash Diagnostics: Integrated automatic crash logging to `%LOCALAPPDATA%\TodoWidget\crash.log` to ensure maximum runtime resilience.
+
+---
+
 ## What's New in 4.0.0 (Major Release)
 
 - Complete UI Overhaul: Re-engineered with a modern Obsidian Glass design, refined navigation rails, smooth micro-interactions, and fluid transitions that can be toggled on or off in Settings.

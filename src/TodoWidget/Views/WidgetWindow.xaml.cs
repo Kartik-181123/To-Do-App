@@ -27,6 +27,8 @@ public partial class WidgetWindow : Window
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+    private bool _isClosing;
+
     public WidgetWindow(WidgetViewModel viewModel)
     {
         InitializeComponent();
@@ -38,6 +40,15 @@ public partial class WidgetWindow : Window
         LocationChanged += WidgetWindow_LocationChanged;
         SizeChanged += WidgetWindow_SizeChanged;
         Deactivated += WidgetWindow_Deactivated;
+        Closing += (s, e) => _isClosing = true;
+        Closed += (s, e) =>
+        {
+            _isClosing = true;
+            if (SettingsManager.Instance != null)
+            {
+                SettingsManager.Instance.SettingsChanged -= OnSettingsChanged;
+            }
+        };
 
         if (SettingsManager.Instance != null)
         {
@@ -78,7 +89,7 @@ public partial class WidgetWindow : Window
 
     private void WidgetWindow_LocationChanged(object? sender, EventArgs e)
     {
-        if (!_isLoaded || _isProgrammaticMove || WindowState == WindowState.Minimized) return;
+        if (!_isLoaded || _isClosing || _isProgrammaticMove || WindowState == WindowState.Minimized) return;
 
         var settings = SettingsManager.Instance?.Current;
         if (settings != null)
@@ -95,7 +106,7 @@ public partial class WidgetWindow : Window
 
     private void WidgetWindow_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        if (!_isLoaded || WindowState == WindowState.Minimized) return;
+        if (!_isLoaded || _isClosing || WindowState == WindowState.Minimized) return;
 
         var settings = SettingsManager.Instance?.Current;
         if (settings != null)
@@ -267,13 +278,24 @@ public partial class WidgetWindow : Window
 
     private void OnSettingsChanged(object? sender, AppSettings e)
     {
+        if (_isClosing) return;
+
         Dispatcher.Invoke(() =>
         {
-            var settings = e ?? SettingsManager.Instance?.Current;
-            if (settings != null)
+            if (_isClosing) return;
+
+            try
             {
-                RestorePositionAndAppearance();
-                Visibility = settings.WidgetVisible ? Visibility.Visible : Visibility.Collapsed;
+                var settings = e ?? SettingsManager.Instance?.Current;
+                if (settings != null)
+                {
+                    RestorePositionAndAppearance();
+                    Visibility = settings.WidgetVisible ? Visibility.Visible : Visibility.Collapsed;
+                }
+            }
+            catch
+            {
+                // Guard against window closing or layout transition exceptions
             }
         });
     }
