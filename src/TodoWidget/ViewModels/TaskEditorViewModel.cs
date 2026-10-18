@@ -169,22 +169,113 @@ public class TaskEditorViewModel : ObservableObject
         set => SetProperty(ref _repeatSat, value);
     }
 
+    public static List<string> AvailableTimeSlots { get; } = GenerateTimeSlots();
+
+    private static List<string> GenerateTimeSlots()
+    {
+        var slots = new List<string>();
+        for (int h = 0; h < 24; h++)
+        {
+            for (int m = 0; m < 60; m += 30)
+            {
+                var dt = DateTime.Today.AddHours(h).AddMinutes(m);
+                slots.Add(dt.ToString("h:mm tt"));
+            }
+        }
+        return slots;
+    }
+
+    public static bool TryParseFlexibleTime(string? input, out TimeSpan result)
+    {
+        result = default;
+        if (string.IsNullOrWhiteSpace(input)) return false;
+
+        string trimmed = input.Trim();
+        if (DateTime.TryParse(trimmed, out DateTime dt))
+        {
+            result = dt.TimeOfDay;
+            return true;
+        }
+
+        if (TimeSpan.TryParse(trimmed, out TimeSpan ts))
+        {
+            result = ts;
+            return true;
+        }
+
+        return false;
+    }
+
     public bool RepeatSun
     {
         get => _repeatSun;
         set => SetProperty(ref _repeatSun, value);
     }
 
+    private string _startTimeText = "9:00 AM";
+    public string StartTimeText
+    {
+        get => _startTimeText;
+        set
+        {
+            if (SetProperty(ref _startTimeText, value))
+            {
+                if (TryParseFlexibleTime(value, out var ts))
+                {
+                    _startTime = ts;
+                    OnPropertyChanged(nameof(StartTime));
+                }
+            }
+        }
+    }
+
+    private string _endTimeText = "11:00 AM";
+    public string EndTimeText
+    {
+        get => _endTimeText;
+        set
+        {
+            if (SetProperty(ref _endTimeText, value))
+            {
+                if (TryParseFlexibleTime(value, out var ts))
+                {
+                    _endTime = ts;
+                    OnPropertyChanged(nameof(EndTime));
+                }
+            }
+        }
+    }
+
     public TimeSpan? StartTime
     {
         get => _startTime;
-        set => SetProperty(ref _startTime, value);
+        set
+        {
+            if (SetProperty(ref _startTime, value))
+            {
+                if (value.HasValue)
+                {
+                    _startTimeText = DateTime.Today.Add(value.Value).ToString("h:mm tt");
+                    OnPropertyChanged(nameof(StartTimeText));
+                }
+            }
+        }
     }
 
     public TimeSpan? EndTime
     {
         get => _endTime;
-        set => SetProperty(ref _endTime, value);
+        set
+        {
+            if (SetProperty(ref _endTime, value))
+            {
+                if (value.HasValue)
+                {
+                    _endTimeText = DateTime.Today.Add(value.Value).ToString("h:mm tt");
+                    OnPropertyChanged(nameof(EndTimeText));
+                }
+            }
+        }
     }
 
     private bool _isEditing;
@@ -299,6 +390,15 @@ public class TaskEditorViewModel : ObservableObject
         var repeatDaysList = new List<DayOfWeek>();
         if (IsRecurring)
         {
+            if (TryParseFlexibleTime(StartTimeText, out var parsedStart))
+            {
+                StartTime = parsedStart;
+            }
+            if (TryParseFlexibleTime(EndTimeText, out var parsedEnd))
+            {
+                EndTime = parsedEnd;
+            }
+
             if (RepeatMon) repeatDaysList.Add(DayOfWeek.Monday);
             if (RepeatTue) repeatDaysList.Add(DayOfWeek.Tuesday);
             if (RepeatWed) repeatDaysList.Add(DayOfWeek.Wednesday);

@@ -60,8 +60,8 @@ public class NotificationService
         try
         {
             string title = minutesBefore > 0
-                ? $"⏰ Task Due in {minutesBefore} minutes"
-                : "⏰ Task Due Now";
+                ? $"Task Due in {minutesBefore} minutes"
+                : "Task Due Now";
 
             var builder = new ToastContentBuilder()
                 .AddText(title)
@@ -106,7 +106,7 @@ public class NotificationService
 
         try
         {
-            string title = "⚠️ Task Overdue";
+            string title = "Task Overdue";
             var builder = new ToastContentBuilder()
                 .AddText(title)
                 .AddText(task.Title);
@@ -145,7 +145,7 @@ public class NotificationService
 
         try
         {
-            string title = "🔥 Streak Update!";
+            string title = "Streak Update!";
             string body = streak == 1
                 ? "You completed all tasks for the day and started a 1-day streak!"
                 : $"Awesome work! You've maintained your todo streak for {streak} consecutive days!";

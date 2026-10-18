@@ -1,6 +1,6 @@
 # To-Do
 
-A lightweight desktop to-do list widget and task organizer for Windows.
+A clean, ultra-lightweight desktop to-do list widget and task organizer for Windows.
 
 I built this app with a single goal in mind: killing procrastination. I often found myself getting distracted on my PC and completely forgetting what I actually sat down to do. This app sits on your desktop, keeps your tasks right in front of you, and reminds you when things are due so you stay on track.
 
@@ -8,15 +8,29 @@ No Chromium, no Electron, and no background memory hogging. It is built natively
 
 ---
 
+## Performance & System Impact
+
+Unlike modern productivity tools that consume hundreds of megabytes of RAM running headless browsers, To-Do is written in pure C# WPF. It runs quietly in the background with virtually zero impact on your system.
+
+![Resource Footprint](docs/images/performance.png)
+
+- Idle CPU Usage: 0%
+- Memory Footprint: ~27.8 MB RAM
+- Zero Background Telemetry or Bloat
+
+---
+
 ## What It Does
 
-- Desktop Widget: A compact square widget that lives right on your desktop. You can set it to stay pinned behind all open windows like wallpaper, or float on top of everything.
-- In-App Auto Updates (New in 2.1.0 Beta): Check for new GitHub releases and install updates directly from within the app with a single click.
-- Voice Notes: Attach audio memos directly to any task using Windows native sound recording. Listen to them right from the dashboard or directly from the desktop widget.
-- Task Management: Create one-time tasks or recurring weekly schedules (like study sessions on Mon/Wed/Fri or gym on Tue/Thu/Sat).
-- Smart Reminders: Native Windows notifications send alerts before tasks are due. You can snooze a reminder once for up to an hour if you are in the middle of something.
-- Daily Streaks: Completing all your scheduled tasks before the day ends increases your streak counter. If a task is missed and left incomplete, the streak resets.
-- Low Resource Usage: Idles at near zero CPU and uses minimal RAM while running silently in the system tray.
+- Desktop Widget: A compact widget that lives right on your desktop. You can pin it directly behind all open windows like interactive wallpaper, or let it float comfortably on top.
+- Interactive Desktop Pinning: Click, check tasks, and play voice notes directly from your desktop even while pinned.
+- Recurring Schedules: Set up tasks that repeat on chosen days of the week with custom start and end times in 12-hour AM/PM format.
+- Voice Notes: Record and attach audio memos to any task. Listen to them right from the dashboard or directly from the desktop widget.
+- Widget Appearance & Themes: Customize widget background colors, opacity, corner radius, fonts, and dimensions to blend into your desktop wallpaper.
+- Configurable Animations: Smooth transitions and visual feedback that can be enabled or disabled with a single toggle in Settings.
+- Smart Reminders: Native Windows notifications alert you before tasks are due, with one-click snooze and completion actions.
+- Daily Streaks: Complete all scheduled tasks before midnight to build your daily streak.
+- In-App Auto Updates: Seamlessly check for new GitHub releases and install updates directly from within the app.
 
 ---
 
@@ -24,29 +38,32 @@ No Chromium, no Electron, and no background memory hogging. It is built natively
 
 1. Quick Adding Tasks
    - Type your task title directly into the input bar at the bottom of the widget and press Enter.
-   - For recurring tasks, specific due times, or priorities, open the dashboard and click "+ New Task".
+   - For recurring schedules, AM/PM times, priorities, or voice notes, open the dashboard and click "+ New Task".
 
-2. In-App Updates
-   - Open Settings from the gear icon in the dashboard.
-   - Under the Updates section, click "Check for Updates".
-   - If a new version or beta is released, click "Download & Install" to automatically update the app.
+2. Recurring Tasks & Time Entry
+   - In the task editor, check "Recurring Schedule" to pick days (e.g. Mon / Wed / Fri).
+   - Use the dropdown or type your start and end times in standard format (e.g. 9:00 AM, 2:30 PM).
 
 3. Recording Voice Notes
-   - While creating or editing a task in the dashboard, click the Record Voice Note button to capture your thoughts.
-   - Preview or pause your recording, then save the task.
-   - Play the voice note anytime directly from the task list in the dashboard or via the play button on the desktop widget.
+   - While creating or editing a task, click "Record Voice Note" to speak your notes.
+   - Preview your audio note and save. Play it back directly from the widget or dashboard.
 
-4. Completing a Task
-   - Click the checkmark box next to any task.
-   - A quick confirmation will ask if the task is done. Confirming crosses the task out and saves your progress.
-
-5. Widget Placement
+4. Widget Placement & Docking
    - Drag the widget anywhere by clicking and holding the top bar.
-   - Open Settings from the gear icon to snap the widget to preset corners (Top-Right, Top-Left, Bottom-Right, Bottom-Left, Center-Right) or adjust its dimensions.
+   - Open Settings to dock the widget to preset corners (Top-Right, Top-Left, Bottom-Right, Bottom-Left, Center-Right) or customize its dimensions.
+   - Choose between "Float Always on Top" and "Pin Directly to Desktop".
 
-6. Background & System Tray
-   - Closing the dashboard window does not close the app; it minimizes to your Windows system tray.
-   - Right-click the tray icon at any time to reopen the dashboard, toggle widget visibility, or exit completely.
+5. Animations & Appearance
+   - In Settings under "System & Startup", toggle smooth UI animations on or off according to your preference.
+   - Adjust widget background colors, opacity, and typography under "Widget Appearance".
+
+6. In-App Updates
+   - Open Settings from the gear icon.
+   - Under "App Updates & Version", click "Check for Updates" to install the latest release automatically.
+
+7. System Tray
+   - Closing the dashboard minimizes the app to your Windows system tray with its custom icon.
+   - Right-click the tray icon to quickly reopen the dashboard, toggle widget visibility, or exit.
 
 ---
 
@@ -54,8 +71,8 @@ No Chromium, no Electron, and no background memory hogging. It is built natively
 
 ### Option 1: Standalone Installer (Recommended)
 1. Head over to the Releases section on GitHub.
-2. Download `ToDoSetup-2.2.0.exe`.
-3. Run the installer and follow the on-screen steps. It sets up desktop shortcuts, start menu entries, and an optional startup launch.
+2. Download `ToDoSetup-3.0.0.exe`.
+3. Run the installer and follow the on-screen steps. It creates desktop shortcuts, start menu entries, and registers the system tray companion.
 
 ### Option 2: Building from Source
 Requirements:
@@ -64,19 +81,25 @@ Requirements:
 
 Steps:
 1. Clone the repository:
+   ```bash
    git clone https://github.com/Kartik-181123/To-Do-App.git
    cd To-Do-App
+   ```
 
 2. Build and run:
+   ```bash
    dotnet run --project src/TodoWidget/TodoWidget.csproj
+   ```
 
 3. Or publish a self-contained release build:
+   ```powershell
    powershell -ExecutionPolicy Bypass -File .\build.ps1
+   ```
 
 ---
 
 ## About the Author
 
-Hey, I am Kartik. I built this app to solve my own procrastination habits while pair-programming and learning desktop application development with C#. If this app helps you stay productive, feel free to star the repository or report any feedback in the Issues tab.
+Hey, I am Kartik. I built this app to solve my own procrastination habits while pair-programming and learning desktop application development with C#. If this app helps you stay productive, feel free to star the repository or report feedback in the Issues tab.
 
 GitHub: https://github.com/Kartik-048

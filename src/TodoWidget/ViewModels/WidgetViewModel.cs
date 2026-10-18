@@ -16,7 +16,7 @@ public class WidgetViewModel : ObservableObject
 
     private ObservableCollection<TodoTask> _tasks = new();
     private int _currentStreak;
-    private string _streakText = "💔 0 Days";
+    private string _streakText = "0 Days";
     private string _newTaskTitle = string.Empty;
     private DateTime? _newTaskDueDate;
     private TaskPriority _newTaskPriority = TaskPriority.Medium;
@@ -41,8 +41,8 @@ public class WidgetViewModel : ObservableObject
             if (SetProperty(ref _currentStreak, value))
             {
                 StreakText = value > 0
-                    ? $"🔥 {value} {(value == 1 ? "Day" : "Days")}"
-                    : "💔 0 Days";
+                    ? $"{value} {(value == 1 ? "Day" : "Days")}"
+                    : "0 Days";
             }
         }
     }

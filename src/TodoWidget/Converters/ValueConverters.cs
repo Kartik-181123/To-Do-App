@@ -183,11 +183,11 @@ public class IntToStreakTextConverter : IValueConverter
         if (value is int streak)
         {
             return streak > 0
-                ? $"🔥 {streak} {(streak == 1 ? "Day" : "Days")}"
-                : "💔 0 Days";
+                ? $"{streak} {(streak == 1 ? "Day" : "Days")}"
+                : "0 Days";
         }
 
-        return "💔 0 Days";
+        return "0 Days";
     }
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotSupportedException();

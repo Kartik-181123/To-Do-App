@@ -1,4 +1,4 @@
-﻿namespace TodoWidget.Views;
+namespace TodoWidget.Views;
 
 using System;
 using System.ComponentModel;
@@ -97,6 +97,27 @@ public partial class DashboardWindow : Window
         }
     }
 
+    private void AnimateTabTransition(FrameworkElement activeTab)
+    {
+        bool animations = SettingsManager.Instance?.Current?.EnableAnimations ?? true;
+        if (animations)
+        {
+            var anim = new System.Windows.Media.Animation.DoubleAnimation
+            {
+                From = 0.4,
+                To = 1.0,
+                Duration = TimeSpan.FromMilliseconds(180),
+                EasingFunction = new System.Windows.Media.Animation.QuadraticEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut }
+            };
+            activeTab.BeginAnimation(UIElement.OpacityProperty, anim);
+        }
+        else
+        {
+            activeTab.BeginAnimation(UIElement.OpacityProperty, null);
+            activeTab.Opacity = 1.0;
+        }
+    }
+
     private void NavTasks_Checked(object sender, RoutedEventArgs e)
     {
         if (TasksTabView == null) return;
@@ -104,6 +125,7 @@ public partial class DashboardWindow : Window
         TasksTabView.Visibility = Visibility.Visible;
         StatsTabView.Visibility = Visibility.Collapsed;
         SettingsTabView.Visibility = Visibility.Collapsed;
+        AnimateTabTransition(TasksTabView);
 
         if (_viewModel != null)
         {
@@ -119,6 +141,7 @@ public partial class DashboardWindow : Window
         TasksTabView.Visibility = Visibility.Collapsed;
         StatsTabView.Visibility = Visibility.Visible;
         SettingsTabView.Visibility = Visibility.Collapsed;
+        AnimateTabTransition(StatsTabView);
 
         if (_viewModel != null)
         {
@@ -134,6 +157,7 @@ public partial class DashboardWindow : Window
         TasksTabView.Visibility = Visibility.Collapsed;
         StatsTabView.Visibility = Visibility.Collapsed;
         SettingsTabView.Visibility = Visibility.Visible;
+        AnimateTabTransition(SettingsTabView);
 
         if (_viewModel != null)
         {

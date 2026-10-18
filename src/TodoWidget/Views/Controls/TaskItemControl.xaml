@@ -19,17 +19,16 @@
             Margin="0,2,0,2"
             Padding="8,6"
             CornerRadius="8"
-            Background="#181825"
+            Background="#12FFFFFF"
             BorderThickness="1"
-            BorderBrush="#313244">
+            BorderBrush="#1FFFFFFF">
         <Border.Style>
             <Style TargetType="Border">
-                <Setter Property="Background" Value="#1E1E2E" />
+                <Setter Property="Background" Value="#12FFFFFF" />
                 <Style.Triggers>
-                    
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="#25263B" />
-                        <Setter Property="BorderBrush" Value="#45475A" />
+                        <Setter Property="Background" Value="#24FFFFFF" />
+                        <Setter Property="BorderBrush" Value="#3BFFFFFF" />
                     </Trigger>
                 </Style.Triggers>
             </Style>

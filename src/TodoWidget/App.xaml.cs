@@ -165,16 +165,31 @@ public partial class App : Application
     {
         try
         {
+            if (!string.IsNullOrEmpty(Environment.ProcessPath) && File.Exists(Environment.ProcessPath))
+            {
+                var exeIcon = Icon.ExtractAssociatedIcon(Environment.ProcessPath);
+                if (exeIcon != null)
+                {
+                    return exeIcon;
+                }
+            }
+
             string[] candidatePaths = [
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "app.ico"),
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico"),
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "taskbar-icon.png"),
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "taskbar-icon.png"),
-                Path.Combine(Directory.GetCurrentDirectory(), "Assets", "taskbar-icon.png")
+                Path.Combine(Directory.GetCurrentDirectory(), "src", "TodoWidget", "Assets", "app.ico")
             ];
 
             foreach (var path in candidatePaths)
             {
                 if (File.Exists(path))
                 {
+                    if (path.EndsWith(".ico", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return new Icon(path);
+                    }
                     using var bmp = new Bitmap(path);
                     return Icon.FromHandle(bmp.GetHicon());
                 }

@@ -54,7 +54,6 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="📝" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding DialogTitle}"
                                FontSize="16"
                                FontWeight="SemiBold"
@@ -177,11 +176,25 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Start Time" FontSize="11" Foreground="#A6ADC8" Margin="0,0,0,4" />
-                                    <TextBox Text="{Binding StartTime, StringFormat=hh\\:mm}" Background="#11111B" Foreground="#CDD6F4" BorderBrush="#45475A" Padding="6,4" ToolTip="Format: HH:mm (e.g. 09:00)" />
+                                    <ComboBox ItemsSource="{Binding AvailableTimeSlots}"
+                                              Text="{Binding StartTimeText, UpdateSourceTrigger=PropertyChanged}"
+                                              IsEditable="True"
+                                              Background="#11111B"
+                                              Foreground="#CDD6F4"
+                                              BorderBrush="#45475A"
+                                              Height="34"
+                                              ToolTip="Select or type time (e.g. 9:00 AM, 2:30 PM)" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="End Time" FontSize="11" Foreground="#A6ADC8" Margin="0,0,0,4" />
-                                    <TextBox Text="{Binding EndTime, StringFormat=hh\\:mm}" Background="#11111B" Foreground="#CDD6F4" BorderBrush="#45475A" Padding="6,4" ToolTip="Format: HH:mm (e.g. 11:00)" />
+                                    <ComboBox ItemsSource="{Binding AvailableTimeSlots}"
+                                              Text="{Binding EndTimeText, UpdateSourceTrigger=PropertyChanged}"
+                                              IsEditable="True"
+                                              Background="#11111B"
+                                              Foreground="#CDD6F4"
+                                              BorderBrush="#45475A"
+                                              Height="34"
+                                              ToolTip="Select or type time (e.g. 11:00 AM, 5:00 PM)" />
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
@@ -269,7 +282,7 @@
                         <Grid Visibility="{Binding HasVoiceNote, Converter={StaticResource InvBoolToVis}}">
                             <!-- Show when not recording -->
                             <StackPanel Orientation="Horizontal" Visibility="{Binding IsRecordingVoiceNote, Converter={StaticResource InvBoolToVis}}">
-                                <Button Content="🎙️ Record Voice Note"
+                                <Button Content="Record Voice Note"
                                         Padding="12,6"
                                         FontSize="12"
                                         FontWeight="Medium"
@@ -401,7 +414,7 @@
 
                             <!-- Delete / Re-record Button -->
                             <Button Grid.Column="3"
-                                    Content="🗑️ Delete"
+                                    Content="Delete"
                                     Padding="10,5"
                                     FontSize="11.5"
                                     Background="#3D2029"

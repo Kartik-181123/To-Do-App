@@ -41,6 +41,7 @@ public class SettingsViewModel : ObservableObject
     private int _newReminderMinutes = 15;
     private string _statusMessage = string.Empty;
     private bool _checkForUpdatesOnStartup = true;
+    private bool _enableAnimations = true;
 
     public UpdateService Updater => UpdateService.Instance;
     public string CurrentVersionText => UpdateService.CurrentVersionDisplay;
@@ -205,6 +206,11 @@ public class SettingsViewModel : ObservableObject
         get => _startMinimized;
         set => SetProperty(ref _startMinimized, value);
     }
+    public bool EnableAnimations
+    {
+        get => _enableAnimations;
+        set => SetProperty(ref _enableAnimations, value);
+    }
     public bool ShowStreakOnWidget
     {
         get => _showStreakOnWidget;
@@ -292,6 +298,7 @@ public class SettingsViewModel : ObservableObject
         DefaultSnoozeDurationMinutes = settings.DefaultSnoozeDurationMinutes > 0 ? settings.DefaultSnoozeDurationMinutes : 10;
         _launchOnStartup = settings.LaunchOnStartup;
         StartMinimized = settings.StartMinimized;
+        EnableAnimations = settings.EnableAnimations;
         ShowStreakOnWidget = settings.ShowStreakOnWidget;
         DayEndHour = settings.DayEndHour;
         CheckForUpdatesOnStartup = settings.CheckForUpdatesOnStartup;
@@ -328,6 +335,7 @@ public class SettingsViewModel : ObservableObject
         settings.DefaultSnoozeDurationMinutes = DefaultSnoozeDurationMinutes;
         settings.LaunchOnStartup = LaunchOnStartup;
         settings.StartMinimized = StartMinimized;
+        settings.EnableAnimations = EnableAnimations;
         settings.ShowStreakOnWidget = ShowStreakOnWidget;
         settings.DayEndHour = DayEndHour;
         settings.CheckForUpdatesOnStartup = CheckForUpdatesOnStartup;
@@ -342,7 +350,7 @@ public class SettingsViewModel : ObservableObject
             _database.SaveSettings(settings);
         }
 
-        StatusMessage = "Settings saved successfully! ✓";
+        StatusMessage = "Settings saved successfully.";
     }
 
     private void ExecuteResetDefaults()
@@ -366,6 +374,7 @@ public class SettingsViewModel : ObservableObject
         DefaultSnoozeDurationMinutes = 10;
         LaunchOnStartup = false;
         StartMinimized = false;
+        EnableAnimations = true;
         ShowStreakOnWidget = true;
         DayEndHour = 24;
         CheckForUpdatesOnStartup = true;

@@ -108,9 +108,8 @@
                 
                 <StackPanel Grid.Row="0" Margin="0,0,0,24">
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                        <TextBlock Text="⚡" FontSize="20" Margin="0,0,8,0" VerticalAlignment="Center" />
                         <TextBlock Text="To-Do"
-                                   FontSize="17"
+                                   FontSize="18"
                                    FontWeight="Bold"
                                    Foreground="#CDD6F4"
                                    VerticalAlignment="Center" />
@@ -118,7 +117,7 @@
                     <TextBlock Text="Desktop Companion"
                                FontSize="11.5"
                                Foreground="#6C7086"
-                               Margin="28,0,0,0" />
+                               Margin="0,0,0,0" />
                 </StackPanel>
 
                 
@@ -128,30 +127,21 @@
                                  IsChecked="{Binding SelectedTabIndex, Converter={x:Null}, Mode=OneWay}"
                                  Checked="NavTasks_Checked"
                                  x:Name="NavTasksRadio">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="📋" FontSize="15" Margin="0,0,10,0" VerticalAlignment="Center" />
-                            <TextBlock Text="Tasks" VerticalAlignment="Center" />
-                        </StackPanel>
+                        <TextBlock Text="Tasks" VerticalAlignment="Center" />
                     </RadioButton>
 
                     <RadioButton Style="{StaticResource SidebarNavButton}"
                                  GroupName="NavTabs"
                                  Checked="NavStats_Checked"
                                  x:Name="NavStatsRadio">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="📊" FontSize="15" Margin="0,0,10,0" VerticalAlignment="Center" />
-                            <TextBlock Text="Stats &amp; Streaks" VerticalAlignment="Center" />
-                        </StackPanel>
+                        <TextBlock Text="Stats &amp; Streaks" VerticalAlignment="Center" />
                     </RadioButton>
 
                     <RadioButton Style="{StaticResource SidebarNavButton}"
                                  GroupName="NavTabs"
                                  Checked="NavSettings_Checked"
                                  x:Name="NavSettingsRadio">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⚙️" FontSize="15" Margin="0,0,10,0" VerticalAlignment="Center" />
-                            <TextBlock Text="Settings" VerticalAlignment="Center" />
-                        </StackPanel>
+                        <TextBlock Text="Settings" VerticalAlignment="Center" />
                     </RadioButton>
                 </StackPanel>
 
@@ -167,8 +157,12 @@
                                    FontSize="11"
                                    FontWeight="Medium"
                                    Foreground="#6C7086" />
-                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                            <TextBlock Text="🔥" FontSize="16" Margin="0,0,6,0" VerticalAlignment="Center" />
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <Ellipse Width="7"
+                                     Height="7"
+                                     Fill="#FFAA44"
+                                     Margin="0,0,6,0"
+                                     VerticalAlignment="Center" />
                             <TextBlock Text="{Binding StreakCount}"
                                        FontSize="16"
                                        FontWeight="Bold"
@@ -256,7 +250,7 @@
                             BorderThickness="1"
                             Margin="0,0,10,0">
                         <Grid>
-                            <TextBlock Text="🔍 Search tasks..."
+                            <TextBlock Text="Search tasks..."
                                        Foreground="#6C7086"
                                        FontSize="12.5"
                                        Margin="12,9,0,0"
@@ -313,7 +307,7 @@
                                 <Setter Property="CornerRadius" Value="8" />
                             </Style>
                         </Button.Resources>
-                        <TextBlock Text="🔄" FontSize="13" Foreground="#A6ADC8" />
+                        <TextBlock Text="⟳" FontSize="14" Foreground="#A6ADC8" />
                     </Button>
                 </Grid>
 
@@ -339,7 +333,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </StackPanel.Style>
-                            <TextBlock Text="📝" FontSize="36" HorizontalAlignment="Center" Margin="0,0,0,10" />
+                            <TextBlock Text="✓" FontSize="32" FontWeight="Bold" Foreground="#3B82F6" HorizontalAlignment="Center" Margin="0,0,0,10" />
                             <TextBlock Text="No tasks found"
                                        FontSize="15"
                                        FontWeight="SemiBold"
@@ -524,9 +518,9 @@
                                                             Command="{Binding DataContext.EditTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding}">
                                                         <Button.Template>
-                                                            <ControlTemplate TargetType="Button">
+                                                             <ControlTemplate TargetType="Button">
                                                                 <Border x:Name="EditBorder" CornerRadius="6" Background="Transparent">
-                                                                    <TextBlock Text="✏️" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                                    <TextBlock Text="✎" FontSize="13" Foreground="#CDD6F4" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                                 </Border>
                                                                 <ControlTemplate.Triggers>
                                                                     <Trigger Property="IsMouseOver" Value="True">
@@ -549,7 +543,7 @@
                                                         <Button.Template>
                                                             <ControlTemplate TargetType="Button">
                                                                 <Border x:Name="DelBorder" CornerRadius="6" Background="Transparent">
-                                                                    <TextBlock Text="🗑️" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                                    <TextBlock Text="✕" FontSize="12" Foreground="#F38BA8" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                                 </Border>
                                                                 <ControlTemplate.Triggers>
                                                                     <Trigger Property="IsMouseOver" Value="True">
@@ -602,7 +596,7 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="🔥 DAILY STREAK"
+                                <TextBlock Text="DAILY STREAK"
                                            FontSize="11.5"
                                            FontWeight="Bold"
                                            Foreground="#FFAA44" />
@@ -618,17 +612,11 @@
                                                VerticalAlignment="Bottom"
                                                Margin="8,0,0,6" />
                                 </StackPanel>
-                                <TextBlock Text="Complete all scheduled tasks today before midnight to keep your fire burning!"
+                                <TextBlock Text="Complete all scheduled tasks today before midnight to maintain your streak."
                                            FontSize="12"
                                            Foreground="#A6ADC8"
                                            Margin="0,6,0,0" />
                             </StackPanel>
-
-                            <TextBlock Grid.Column="1"
-                                       Text="🔥"
-                                       FontSize="64"
-                                       VerticalAlignment="Center"
-                                       Opacity="0.8" />
                         </Grid>
                     </Border>
 
@@ -637,7 +625,7 @@
                         
                         <Border Style="{StaticResource StatCard}">
                             <StackPanel>
-                                <TextBlock Text="🏆 Longest Streak" FontSize="12" FontWeight="Medium" Foreground="#6C7086" />
+                                <TextBlock Text="Longest Streak" FontSize="12" FontWeight="Medium" Foreground="#6C7086" />
                                 <TextBlock Text="{Binding LongestStreak, StringFormat='{}{0} Days'}"
                                            FontSize="22"
                                            FontWeight="Bold"
@@ -649,7 +637,7 @@
                         
                         <Border Style="{StaticResource StatCard}">
                             <StackPanel>
-                                <TextBlock Text="✓ Completed Today" FontSize="12" FontWeight="Medium" Foreground="#6C7086" />
+                                <TextBlock Text="Completed Today" FontSize="12" FontWeight="Medium" Foreground="#6C7086" />
                                 <TextBlock Text="{Binding CompletedToday, StringFormat='{}{0} Tasks'}"
                                            FontSize="22"
                                            FontWeight="Bold"
@@ -661,7 +649,7 @@
                         
                         <Border Style="{StaticResource StatCard}">
                             <StackPanel>
-                                <TextBlock Text="⏳ Pending Tasks" FontSize="12" FontWeight="Medium" Foreground="#6C7086" />
+                                <TextBlock Text="Pending Tasks" FontSize="12" FontWeight="Medium" Foreground="#6C7086" />
                                 <TextBlock Text="{Binding PendingCount, StringFormat='{}{0} Tasks'}"
                                            FontSize="22"
                                            FontWeight="Bold"
@@ -673,7 +661,7 @@
                         
                         <Border Style="{StaticResource StatCard}">
                             <StackPanel>
-                                <TextBlock Text="📈 All-Time Completed" FontSize="12" FontWeight="Medium" Foreground="#6C7086" />
+                                <TextBlock Text="All-Time Completed" FontSize="12" FontWeight="Medium" Foreground="#6C7086" />
                                 <TextBlock Text="{Binding TotalCompleted, StringFormat='{}{0} Tasks'}"
                                            FontSize="22"
                                            FontWeight="Bold"
@@ -685,7 +673,7 @@
                         
                         <Border Style="{StaticResource StatCard}">
                             <StackPanel>
-                                <TextBlock Text="⚠️ All-Time Failed" FontSize="12" FontWeight="Medium" Foreground="#6C7086" />
+                                <TextBlock Text="All-Time Failed" FontSize="12" FontWeight="Medium" Foreground="#6C7086" />
                                 <TextBlock Text="{Binding TotalFailed, StringFormat='{}{0} Tasks'}"
                                            FontSize="22"
                                            FontWeight="Bold"
@@ -697,7 +685,7 @@
                         
                         <Border Style="{StaticResource StatCard}">
                             <StackPanel>
-                                <TextBlock Text="🎯 Completion Rate" FontSize="12" FontWeight="Medium" Foreground="#6C7086" />
+                                <TextBlock Text="Completion Rate" FontSize="12" FontWeight="Medium" Foreground="#6C7086" />
                                 <TextBlock Text="{Binding CompletionRate, StringFormat='{}{0:F1}%'}"
                                            FontSize="22"
                                            FontWeight="Bold"
@@ -724,7 +712,7 @@
                     
                     <Border Style="{StaticResource CardPanel}">
                         <StackPanel>
-                            <TextBlock Text="🎨 Widget Appearance"
+                            <TextBlock Text="Widget Appearance"
                                        FontSize="15"
                                        FontWeight="SemiBold"
                                        Foreground="#CDD6F4"
@@ -851,7 +839,7 @@
 
                     <Border Style="{StaticResource CardPanel}">
                         <StackPanel>
-                            <TextBlock Text="📌 Widget Behavior &amp; Placement"
+                            <TextBlock Text="Widget Behavior &amp; Placement"
                                        FontSize="15"
                                        FontWeight="SemiBold"
                                        Foreground="#CDD6F4"
@@ -897,7 +885,7 @@
                     
                     <Border Style="{StaticResource CardPanel}">
                         <StackPanel>
-                            <TextBlock Text="🔔 Reminders &amp; Alerts"
+                            <TextBlock Text="Reminders &amp; Alerts"
                                        FontSize="15"
                                        FontWeight="SemiBold"
                                        Foreground="#CDD6F4"
@@ -994,7 +982,7 @@
                     
                     <Border Style="{StaticResource CardPanel}">
                         <StackPanel>
-                            <TextBlock Text="💻 System &amp; Startup"
+                            <TextBlock Text="System &amp; Startup"
                                        FontSize="15"
                                        FontWeight="SemiBold"
                                        Foreground="#CDD6F4"
@@ -1007,6 +995,11 @@
 
                             <CheckBox Content="Start minimized to system tray icon"
                                       IsChecked="{Binding StartMinimized}"
+                                      Foreground="#CDD6F4"
+                                      Margin="0,0,0,10" />
+
+                            <CheckBox Content="Enable smooth UI animations and effects"
+                                      IsChecked="{Binding EnableAnimations}"
                                       Foreground="#CDD6F4"
                                       Margin="0,0,0,14" />
 
@@ -1030,7 +1023,7 @@
                     <!-- Updates & Version Card -->
                     <Border Style="{StaticResource CardPanel}" Margin="0,0,0,16">
                         <StackPanel>
-                            <TextBlock Text="🔄 App Updates &amp; Version"
+                            <TextBlock Text="App Updates &amp; Version"
                                        FontSize="15"
                                        FontWeight="SemiBold"
                                        Foreground="#CDD6F4"
@@ -1121,7 +1114,7 @@
 
                     <Border Style="{StaticResource CardPanel}" Margin="0,0,0,16">
                         <StackPanel>
-                            <TextBlock Text="👋 About the Dev"
+                            <TextBlock Text="About the Developer"
                                        FontSize="15"
                                        FontWeight="SemiBold"
                                        Foreground="#CDD6F4"
@@ -1141,7 +1134,7 @@
                                     BorderThickness="1"
                                     Padding="10,6">
                                 <TextBlock>
-                                    <Run Text="🔗 GitHub: " Foreground="#89B4FA" FontWeight="Medium" FontSize="12" />
+                                    <Run Text="GitHub: " Foreground="#89B4FA" FontWeight="Medium" FontSize="12" />
                                     <Hyperlink NavigateUri="https://github.com/Kartik-048"
                                                RequestNavigate="Hyperlink_RequestNavigate"
                                                Foreground="#3B82F6"

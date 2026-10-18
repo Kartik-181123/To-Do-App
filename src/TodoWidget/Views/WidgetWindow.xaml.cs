@@ -16,6 +16,8 @@ public partial class WidgetWindow : Window
     private readonly WidgetViewModel _viewModel;
     private IntPtr _hwnd = IntPtr.Zero;
     private bool _isLoaded;
+    private bool _isProgrammaticMove;
+    private bool _isUserDragging;
 
     private const int GWL_EXSTYLE = -20;
     private const int WS_EX_TOOLWINDOW = 0x00000080;
@@ -35,6 +37,7 @@ public partial class WidgetWindow : Window
         Loaded += WidgetWindow_Loaded;
         LocationChanged += WidgetWindow_LocationChanged;
         SizeChanged += WidgetWindow_SizeChanged;
+        Deactivated += WidgetWindow_Deactivated;
 
         if (SettingsManager.Instance != null)
         {
@@ -64,16 +67,28 @@ public partial class WidgetWindow : Window
         RestorePositionAndAppearance();
     }
 
+    private void WidgetWindow_Deactivated(object? sender, EventArgs e)
+    {
+        var settings = SettingsManager.Instance?.Current;
+        if (settings?.WidgetMode == WidgetMode.PinnedToDesktop && _hwnd != IntPtr.Zero)
+        {
+            DesktopPinner.PinToDesktop(_hwnd);
+        }
+    }
+
     private void WidgetWindow_LocationChanged(object? sender, EventArgs e)
     {
-        if (!_isLoaded || WindowState == WindowState.Minimized) return;
+        if (!_isLoaded || _isProgrammaticMove || WindowState == WindowState.Minimized) return;
 
         var settings = SettingsManager.Instance?.Current;
         if (settings != null)
         {
             settings.WidgetLeft = Left;
             settings.WidgetTop = Top;
-            settings.DockPosition = WidgetDockPosition.Custom;
+            if (_isUserDragging)
+            {
+                settings.DockPosition = WidgetDockPosition.Custom;
+            }
             SettingsManager.Instance?.Save();
         }
     }
@@ -93,69 +108,77 @@ public partial class WidgetWindow : Window
 
     private void RestorePositionAndAppearance()
     {
-        var settings = SettingsManager.Instance?.Current;
-        if (settings == null) return;
-        if (settings.WidgetWidth >= 160)
+        _isProgrammaticMove = true;
+        try
         {
-            Width = settings.WidgetWidth;
-        }
+            var settings = SettingsManager.Instance?.Current;
+            if (settings == null) return;
+            if (settings.WidgetWidth >= 160)
+            {
+                Width = settings.WidgetWidth;
+            }
 
-        if (settings.WidgetHeight >= 160)
-        {
-            Height = settings.WidgetHeight;
-        }
+            if (settings.WidgetHeight >= 160)
+            {
+                Height = settings.WidgetHeight;
+            }
 
-        var workArea = SystemParameters.WorkArea;
+            var workArea = SystemParameters.WorkArea;
 
-        switch (settings.DockPosition)
-        {
-            case WidgetDockPosition.TopRight:
-                Left = workArea.Right - Width - 24;
-                Top = workArea.Top + 24;
-                break;
-            case WidgetDockPosition.TopLeft:
-                Left = workArea.Left + 24;
-                Top = workArea.Top + 24;
-                break;
-            case WidgetDockPosition.BottomRight:
-                Left = workArea.Right - Width - 24;
-                Top = workArea.Bottom - Height - 24;
-                break;
-            case WidgetDockPosition.BottomLeft:
-                Left = workArea.Left + 24;
-                Top = workArea.Bottom - Height - 24;
-                break;
-            case WidgetDockPosition.CenterRight:
-                Left = workArea.Right - Width - 24;
-                Top = workArea.Top + (workArea.Height - Height) / 2;
-                break;
-            default:
-                double virtualLeft = SystemParameters.VirtualScreenLeft;
-                double virtualTop = SystemParameters.VirtualScreenTop;
-                double virtualWidth = SystemParameters.VirtualScreenWidth;
-                double virtualHeight = SystemParameters.VirtualScreenHeight;
-
-                if (settings.WidgetLeft >= virtualLeft && settings.WidgetLeft + Width <= virtualLeft + virtualWidth)
-                {
-                    Left = settings.WidgetLeft;
-                }
-                else
-                {
+            switch (settings.DockPosition)
+            {
+                case WidgetDockPosition.TopRight:
                     Left = workArea.Right - Width - 24;
-                }
-
-                if (settings.WidgetTop >= virtualTop && settings.WidgetTop + Height <= virtualTop + virtualHeight)
-                {
-                    Top = settings.WidgetTop;
-                }
-                else
-                {
                     Top = workArea.Top + 24;
-                }
-                break;
-        }
+                    break;
+                case WidgetDockPosition.TopLeft:
+                    Left = workArea.Left + 24;
+                    Top = workArea.Top + 24;
+                    break;
+                case WidgetDockPosition.BottomRight:
+                    Left = workArea.Right - Width - 24;
+                    Top = workArea.Bottom - Height - 24;
+                    break;
+                case WidgetDockPosition.BottomLeft:
+                    Left = workArea.Left + 24;
+                    Top = workArea.Bottom - Height - 24;
+                    break;
+                case WidgetDockPosition.CenterRight:
+                    Left = workArea.Right - Width - 24;
+                    Top = workArea.Top + (workArea.Height - Height) / 2;
+                    break;
+                default:
+                    double virtualLeft = SystemParameters.VirtualScreenLeft;
+                    double virtualTop = SystemParameters.VirtualScreenTop;
+                    double virtualWidth = SystemParameters.VirtualScreenWidth;
+                    double virtualHeight = SystemParameters.VirtualScreenHeight;
 
-        ApplyAppearanceSettings(settings);
+                    if (settings.WidgetLeft >= virtualLeft && settings.WidgetLeft + Width <= virtualLeft + virtualWidth)
+                    {
+                        Left = settings.WidgetLeft;
+                    }
+                    else
+                    {
+                        Left = workArea.Right - Width - 24;
+                    }
+
+                    if (settings.WidgetTop >= virtualTop && settings.WidgetTop + Height <= virtualTop + virtualHeight)
+                    {
+                        Top = settings.WidgetTop;
+                    }
+                    else
+                    {
+                        Top = workArea.Top + 24;
+                    }
+                    break;
+            }
+
+            ApplyAppearanceSettings(settings);
+        }
+        finally
+        {
+            _isProgrammaticMove = false;
+        }
     }
 
     private void ApplyAppearanceSettings(AppSettings settings)
@@ -170,6 +193,13 @@ public partial class WidgetWindow : Window
                 byte alpha = (byte)(Math.Clamp(settings.WidgetOpacity, 0.1, 1.0) * 255);
                 var brush = new SolidColorBrush(Color.FromArgb(alpha, baseColor.R, baseColor.G, baseColor.B));
                 MainWidgetBorder.Background = brush;
+
+                var headerColor = ColorHelper.Darken(baseColor, 0.15);
+                HeaderBar.Background = new SolidColorBrush(Color.FromArgb(alpha, headerColor.R, headerColor.G, headerColor.B));
+                if (QuickAddBar != null)
+                {
+                    QuickAddBar.Background = new SolidColorBrush(Color.FromArgb(alpha, headerColor.R, headerColor.G, headerColor.B));
+                }
             }
 
             if (settings.WidgetCornerRadius >= 0)
@@ -180,6 +210,14 @@ public partial class WidgetWindow : Window
                     Math.Max(0, settings.WidgetCornerRadius - 1),
                     0,
                     0);
+                if (QuickAddBar != null)
+                {
+                    QuickAddBar.CornerRadius = new CornerRadius(
+                        0,
+                        0,
+                        Math.Max(0, settings.WidgetCornerRadius - 1),
+                        Math.Max(0, settings.WidgetCornerRadius - 1));
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(settings.FontFamily))
@@ -244,7 +282,18 @@ public partial class WidgetWindow : Window
     {
         if (e.LeftButton == MouseButtonState.Pressed)
         {
-            DragMove();
+            _isUserDragging = true;
+            try
+            {
+                DragMove();
+            }
+            catch
+            {
+            }
+            finally
+            {
+                _isUserDragging = false;
+            }
         }
     }
 

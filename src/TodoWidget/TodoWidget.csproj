@@ -12,7 +12,7 @@
     <Description>Ultra-lightweight desktop todo widget with streak gamification</Description>
     <Company>To-Do</Company>
     <Product>To-Do</Product>
-    <Version>2.2.0</Version>
+    <Version>3.0.0</Version>
     <PublishTrimmed>false</PublishTrimmed>
     <PublishReadyToRun>true</PublishReadyToRun>
     <SelfContained>true</SelfContained>
@@ -25,5 +25,8 @@
   <ItemGroup>
     <Resource Include="Assets\**\*.png" />
     <Resource Include="Assets\**\*.ico" />
+    <Content Include="Assets\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

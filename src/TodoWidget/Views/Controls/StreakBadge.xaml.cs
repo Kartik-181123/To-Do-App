@@ -1,4 +1,4 @@
-﻿namespace TodoWidget.Views.Controls;
+namespace TodoWidget.Views.Controls;
 
 using System.Windows;
 using System.Windows.Controls;
@@ -16,7 +16,7 @@ public partial class StreakBadge : UserControl
             nameof(StreakEmoji),
             typeof(string),
             typeof(StreakBadge),
-            new PropertyMetadata("💔"));
+            new PropertyMetadata(""));
     public static readonly DependencyProperty DisplayTextProperty =
         DependencyProperty.Register(
             nameof(DisplayText),
@@ -55,12 +55,13 @@ public partial class StreakBadge : UserControl
 
     private void UpdateVisuals(int count, bool triggerPulse)
     {
-        StreakEmoji = count > 0 ? "🔥" : "💔";
+        StreakEmoji = "";
         DisplayText = $"{count} {(count == 1 ? "Day" : "Days")}";
 
         if (triggerPulse && count > 0)
         {
-            if (Resources["PulseAnimation"] is Storyboard sb)
+            bool animationsEnabled = TodoWidget.Data.SettingsManager.Instance?.Current?.EnableAnimations ?? true;
+            if (animationsEnabled && Resources["PulseAnimation"] is Storyboard sb)
             {
                 sb.Begin();
             }
