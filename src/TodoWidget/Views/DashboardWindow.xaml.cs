@@ -109,6 +109,9 @@ public partial class DashboardWindow : Window
                     NavAccountRadio.IsChecked = true;
                     break;
                 case 3:
+                    NavBlockerRadio.IsChecked = true;
+                    break;
+                case 4:
                     NavSettingsRadio.IsChecked = true;
                     break;
             }
@@ -143,6 +146,7 @@ public partial class DashboardWindow : Window
         TasksTabView.Visibility = Visibility.Visible;
         StatsTabView.Visibility = Visibility.Collapsed;
         AccountTabView.Visibility = Visibility.Collapsed;
+        if (BlockerTabView != null) BlockerTabView.Visibility = Visibility.Collapsed;
         SettingsTabView.Visibility = Visibility.Collapsed;
         AnimateTabTransition(TasksTabView);
 
@@ -160,6 +164,7 @@ public partial class DashboardWindow : Window
         TasksTabView.Visibility = Visibility.Collapsed;
         StatsTabView.Visibility = Visibility.Visible;
         AccountTabView.Visibility = Visibility.Collapsed;
+        if (BlockerTabView != null) BlockerTabView.Visibility = Visibility.Collapsed;
         SettingsTabView.Visibility = Visibility.Collapsed;
         AnimateTabTransition(StatsTabView);
 
@@ -177,6 +182,7 @@ public partial class DashboardWindow : Window
         TasksTabView.Visibility = Visibility.Collapsed;
         StatsTabView.Visibility = Visibility.Collapsed;
         AccountTabView.Visibility = Visibility.Visible;
+        if (BlockerTabView != null) BlockerTabView.Visibility = Visibility.Collapsed;
         SettingsTabView.Visibility = Visibility.Collapsed;
         AnimateTabTransition(AccountTabView);
 
@@ -187,6 +193,24 @@ public partial class DashboardWindow : Window
         }
     }
 
+    private void NavBlocker_Checked(object sender, RoutedEventArgs e)
+    {
+        if (BlockerTabView == null) return;
+
+        TasksTabView.Visibility = Visibility.Collapsed;
+        StatsTabView.Visibility = Visibility.Collapsed;
+        AccountTabView.Visibility = Visibility.Collapsed;
+        BlockerTabView.Visibility = Visibility.Visible;
+        SettingsTabView.Visibility = Visibility.Collapsed;
+        AnimateTabTransition(BlockerTabView);
+
+        if (_viewModel != null)
+        {
+            _viewModel.SelectedTabIndex = 3;
+            _viewModel.RefreshAll();
+        }
+    }
+
     private void NavSettings_Checked(object sender, RoutedEventArgs e)
     {
         if (SettingsTabView == null) return;
@@ -194,12 +218,55 @@ public partial class DashboardWindow : Window
         TasksTabView.Visibility = Visibility.Collapsed;
         StatsTabView.Visibility = Visibility.Collapsed;
         AccountTabView.Visibility = Visibility.Collapsed;
+        if (BlockerTabView != null) BlockerTabView.Visibility = Visibility.Collapsed;
         SettingsTabView.Visibility = Visibility.Visible;
         AnimateTabTransition(SettingsTabView);
 
         if (_viewModel != null)
         {
-            _viewModel.SelectedTabIndex = 3;
+            _viewModel.SelectedTabIndex = 4;
+        }
+    }
+
+    private void DropZone_Drop(object sender, DragEventArgs e)
+    {
+        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (files != null && files.Length > 0)
+            {
+                foreach (var file in files)
+                {
+                    _viewModel.AddCustomAppFromFileCommand.Execute(file);
+                }
+            }
+        }
+    }
+
+    private void DropZone_DragOver(object sender, DragEventArgs e)
+    {
+        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        {
+            e.Effects = DragDropEffects.Copy;
+            e.Handled = true;
+        }
+    }
+
+    private void BrowseApp_Click(object sender, RoutedEventArgs e)
+    {
+        var openFileDialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Select Application to Block",
+            Filter = "Applications & Shortcuts (*.exe;*.lnk)|*.exe;*.lnk|All Files (*.*)|*.*",
+            Multiselect = true
+        };
+
+        if (openFileDialog.ShowDialog() == true)
+        {
+            foreach (var filename in openFileDialog.FileNames)
+            {
+                _viewModel.AddCustomAppFromFileCommand.Execute(filename);
+            }
         }
     }
 

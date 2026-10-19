@@ -43,11 +43,11 @@ public class UpdateService : ObservableObject
         get
         {
             var ver = Assembly.GetExecutingAssembly().GetName().Version;
-            return ver != null ? new Version(ver.Major, ver.Minor, Math.Max(0, ver.Build)) : new Version(4, 2, 0);
+            return ver != null ? new Version(ver.Major, ver.Minor, Math.Max(0, ver.Build)) : new Version(5, 0, 0);
         }
     }
 
-    public static string CurrentVersionDisplay => $"{CurrentVersion.Major}.{CurrentVersion.Minor}.{CurrentVersion.Build} (UI fixes and bugs)";
+    public static string CurrentVersionDisplay => $"{CurrentVersion.Major}.{CurrentVersion.Minor}.{CurrentVersion.Build} (App Blocker & Deep Focus)";
 
     public bool IsChecking
     {

@@ -45,6 +45,9 @@ public class SettingsViewModel : ObservableObject
     private bool _autoSyncEnabled = true;
     private int _focusSprintMinutes = 2;
     private int _focusPomodoroMinutes = 25;
+    private bool _appBlockingEnabled = true;
+    private bool _blockTaskManagerInFocus = true;
+    private bool _strictFocusLock = false;
 
     public bool AutoSyncEnabled
     {
@@ -62,6 +65,24 @@ public class SettingsViewModel : ObservableObject
     {
         get => _focusPomodoroMinutes;
         set => SetProperty(ref _focusPomodoroMinutes, Math.Clamp(value, 5, 90));
+    }
+
+    public bool AppBlockingEnabled
+    {
+        get => _appBlockingEnabled;
+        set => SetProperty(ref _appBlockingEnabled, value);
+    }
+
+    public bool BlockTaskManagerInFocus
+    {
+        get => _blockTaskManagerInFocus;
+        set => SetProperty(ref _blockTaskManagerInFocus, value);
+    }
+
+    public bool StrictFocusLock
+    {
+        get => _strictFocusLock;
+        set => SetProperty(ref _strictFocusLock, value);
     }
 
     public UpdateService Updater => UpdateService.Instance;
@@ -326,6 +347,9 @@ public class SettingsViewModel : ObservableObject
         AutoSyncEnabled = settings.AutoSyncEnabled;
         FocusSprintMinutes = settings.FocusSprintMinutes > 0 ? settings.FocusSprintMinutes : 2;
         FocusPomodoroMinutes = settings.FocusPomodoroMinutes > 0 ? settings.FocusPomodoroMinutes : 25;
+        AppBlockingEnabled = settings.AppBlockingEnabled;
+        BlockTaskManagerInFocus = settings.BlockTaskManagerInFocus;
+        StrictFocusLock = settings.StrictFocusLock;
 
         var intervals = settings.ReminderIntervalsMinutes != null && settings.ReminderIntervalsMinutes.Count > 0
             ? settings.ReminderIntervalsMinutes
@@ -366,6 +390,9 @@ public class SettingsViewModel : ObservableObject
         settings.AutoSyncEnabled = AutoSyncEnabled;
         settings.FocusSprintMinutes = FocusSprintMinutes;
         settings.FocusPomodoroMinutes = FocusPomodoroMinutes;
+        settings.AppBlockingEnabled = AppBlockingEnabled;
+        settings.BlockTaskManagerInFocus = BlockTaskManagerInFocus;
+        settings.StrictFocusLock = StrictFocusLock;
         settings.ReminderIntervalsMinutes = ReminderIntervals.ToList();
 
         if (SettingsManager.Instance != null)

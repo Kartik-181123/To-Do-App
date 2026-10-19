@@ -1,8 +1,10 @@
 namespace TodoWidget.ViewModels;
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using TodoWidget.Data;
 using TodoWidget.Helpers;
@@ -145,6 +147,143 @@ public class DashboardViewModel : ObservableObject
     public RelayCommand SyncNowCommand { get; }
 
     public string? CurrentlyPlayingVoiceNotePath => AudioService.Instance.CurrentPlayingPath;
+
+    // App Blocker & Focus Suite Properties
+    private ObservableCollection<BlockedAppInfo> _blockedApps = new();
+    private ObservableCollection<BlockedAppInfo> _scannedApps = new();
+    private ObservableCollection<BlockedAppInfo> _filteredScannedApps = new();
+    private ObservableCollection<BlockedAppInfo> _distractionPresets = new();
+    private string _scannedSearchQuery = string.Empty;
+    private bool _isScanningApps;
+    private bool _hasScannedApps;
+
+    public ObservableCollection<BlockedAppInfo> BlockedApps
+    {
+        get => _blockedApps;
+        set => SetProperty(ref _blockedApps, value);
+    }
+
+    public ObservableCollection<BlockedAppInfo> FilteredScannedApps
+    {
+        get => _filteredScannedApps;
+        set => SetProperty(ref _filteredScannedApps, value);
+    }
+
+    public ObservableCollection<BlockedAppInfo> DistractionPresets
+    {
+        get => _distractionPresets;
+        set => SetProperty(ref _distractionPresets, value);
+    }
+
+    public string ScannedSearchQuery
+    {
+        get => _scannedSearchQuery;
+        set
+        {
+            if (SetProperty(ref _scannedSearchQuery, value))
+            {
+                ApplyScannedAppsFilter();
+            }
+        }
+    }
+
+    public bool IsScanningApps
+    {
+        get => _isScanningApps;
+        set => SetProperty(ref _isScanningApps, value);
+    }
+
+    public bool HasScannedApps
+    {
+        get => _hasScannedApps;
+        set => SetProperty(ref _hasScannedApps, value);
+    }
+
+    public bool AppBlockingEnabled
+    {
+        get => SettingsManager.Instance.Current.AppBlockingEnabled;
+        set
+        {
+            var settings = SettingsManager.Instance.Current;
+            if (settings.AppBlockingEnabled != value)
+            {
+                settings.AppBlockingEnabled = value;
+                SettingsManager.Instance.Save();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(AppBlockingStatusText));
+            }
+        }
+    }
+
+    public bool BlockTaskManagerInFocus
+    {
+        get => SettingsManager.Instance.Current.BlockTaskManagerInFocus;
+        set
+        {
+            var settings = SettingsManager.Instance.Current;
+            if (settings.BlockTaskManagerInFocus != value)
+            {
+                settings.BlockTaskManagerInFocus = value;
+                SettingsManager.Instance.Save();
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public bool StrictFocusLock
+    {
+        get => SettingsManager.Instance.Current.StrictFocusLock;
+        set
+        {
+            var settings = SettingsManager.Instance.Current;
+            if (settings.StrictFocusLock != value)
+            {
+                settings.StrictFocusLock = value;
+                SettingsManager.Instance.Save();
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public bool IsFocusModeActive
+    {
+        get => SettingsManager.Instance.Current.IsFocusModeActive;
+        set
+        {
+            var settings = SettingsManager.Instance.Current;
+            if (settings.IsFocusModeActive != value)
+            {
+                settings.IsFocusModeActive = value;
+                SettingsManager.Instance.Save();
+                if (value)
+                {
+                    AppBlockerService.Instance.Start();
+                }
+                else
+                {
+                    AppBlockerService.Instance.Stop();
+                }
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(FocusModeStatusText));
+                OnPropertyChanged(nameof(FocusModeButtonText));
+            }
+        }
+    }
+
+    public int BlockedCountThisSession => AppBlockerService.Instance.BlockedCountThisSession;
+    public string FocusModeStatusText => IsFocusModeActive ? "Focus Mode Active" : "Focus Mode Inactive";
+    public string FocusModeButtonText => IsFocusModeActive ? "Stop Focus Session" : "Start Focus Session";
+    public string AppBlockingStatusText => AppBlockingEnabled ? "Enforcement Active" : "Disabled";
+
+    public RelayCommand ToggleFocusModeCommand { get; }
+    public RelayCommand ScanInstalledAppsCommand { get; }
+    public RelayCommand<BlockedAppInfo> AddBlockedAppCommand { get; }
+    public RelayCommand<BlockedAppInfo> RemoveBlockedAppCommand { get; }
+    public RelayCommand<BlockedAppInfo> ToggleBlockedAppStatusCommand { get; }
+    public RelayCommand<string> AddCustomAppFromFileCommand { get; }
+    public RelayCommand ClearAllBlockedAppsCommand { get; }
+    public RelayCommand ResetSessionBlockCountCommand { get; }
+
     public DashboardViewModel(AppDatabase database, StreakService? streakService = null)
     {
         _database = database ?? throw new ArgumentNullException(nameof(database));
@@ -170,7 +309,7 @@ public class DashboardViewModel : ObservableObject
                 AudioService.Instance.TogglePlay(task.VoiceNotePath);
             }
         });
-        OpenSettingsCommand = new RelayCommand(() => SelectedTabIndex = 3);
+        OpenSettingsCommand = new RelayCommand(() => SelectedTabIndex = 4);
         RefreshCommand = new RelayCommand(RefreshAll);
 
         ConnectGitHubCommand = new RelayCommand(async () =>
@@ -209,6 +348,86 @@ public class DashboardViewModel : ObservableObject
                 OnPropertyChanged(nameof(CurrentlyPlayingVoiceNotePath));
             });
         };
+
+        ToggleFocusModeCommand = new RelayCommand(() =>
+        {
+            IsFocusModeActive = !IsFocusModeActive;
+        });
+
+        ScanInstalledAppsCommand = new RelayCommand(async () =>
+        {
+            await ScanInstalledAppsAsync();
+        });
+
+        AddBlockedAppCommand = new RelayCommand<BlockedAppInfo>(app =>
+        {
+            if (app != null)
+            {
+                AddAppToBlockedList(app);
+            }
+        });
+
+        RemoveBlockedAppCommand = new RelayCommand<BlockedAppInfo>(app =>
+        {
+            if (app != null)
+            {
+                RemoveAppFromBlockedList(app);
+            }
+        });
+
+        ToggleBlockedAppStatusCommand = new RelayCommand<BlockedAppInfo>(app =>
+        {
+            if (app != null)
+            {
+                app.IsEnabled = !app.IsEnabled;
+                SaveBlockedApps();
+                OnPropertyChanged(nameof(BlockedApps));
+            }
+        });
+
+        AddCustomAppFromFileCommand = new RelayCommand<string>(path =>
+        {
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                var app = AppScannerService.Instance.CreateFromFile(path);
+                if (app != null)
+                {
+                    AddAppToBlockedList(app);
+                }
+            }
+        });
+
+        ClearAllBlockedAppsCommand = new RelayCommand(() =>
+        {
+            if (BlockedApps.Count == 0) return;
+            var res = MessageBox.Show(
+                "Are you sure you want to clear all blocked applications?",
+                "Clear Blocked Apps",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+            if (res == MessageBoxResult.Yes)
+            {
+                BlockedApps.Clear();
+                SaveBlockedApps();
+            }
+        });
+
+        ResetSessionBlockCountCommand = new RelayCommand(() =>
+        {
+            AppBlockerService.Instance.ResetSessionCount();
+            OnPropertyChanged(nameof(BlockedCountThisSession));
+        });
+
+        AppBlockerService.Instance.BlockedCountChanged += () =>
+        {
+            RunOnDispatcher(() =>
+            {
+                OnPropertyChanged(nameof(BlockedCountThisSession));
+            });
+        };
+
+        LoadBlockedApps();
+        LoadDistractionPresets();
 
         RefreshAll();
     }
@@ -335,5 +554,117 @@ public class DashboardViewModel : ObservableObject
         {
             action();
         }
+    }
+
+    private void LoadBlockedApps()
+    {
+        var settings = SettingsManager.Instance.Current;
+        settings.BlockedApps ??= new List<BlockedAppInfo>();
+
+        foreach (var app in settings.BlockedApps)
+        {
+            if (app.Icon == null && !string.IsNullOrWhiteSpace(app.ExecutablePath))
+            {
+                app.Icon = AppScannerService.TryExtractIcon(app.ExecutablePath);
+            }
+        }
+
+        BlockedApps = new ObservableCollection<BlockedAppInfo>(settings.BlockedApps);
+    }
+
+    private void LoadDistractionPresets()
+    {
+        var presets = AppScannerService.Instance.GetCommonDistractionPresets();
+        DistractionPresets = new ObservableCollection<BlockedAppInfo>(presets);
+    }
+
+    public void SaveBlockedApps()
+    {
+        var settings = SettingsManager.Instance.Current;
+        settings.BlockedApps = BlockedApps.ToList();
+        SettingsManager.Instance.Save();
+        OnPropertyChanged(nameof(BlockedApps));
+    }
+
+    public void AddAppToBlockedList(BlockedAppInfo app)
+    {
+        if (app == null) return;
+
+        // Prevent duplicate process entries
+        if (BlockedApps.Any(a => string.Equals(a.ProcessName, app.ProcessName, StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
+
+        var copy = new BlockedAppInfo
+        {
+            Name = app.Name,
+            ProcessName = app.ProcessName,
+            ExecutablePath = app.ExecutablePath,
+            IsEnabled = true,
+            IsCustom = app.IsCustom,
+            AddedAt = DateTime.Now,
+            Icon = app.Icon ?? (string.IsNullOrWhiteSpace(app.ExecutablePath) ? null : AppScannerService.TryExtractIcon(app.ExecutablePath))
+        };
+
+        BlockedApps.Add(copy);
+        SaveBlockedApps();
+    }
+
+    public void RemoveAppFromBlockedList(BlockedAppInfo app)
+    {
+        if (app == null) return;
+        var existing = BlockedApps.FirstOrDefault(a =>
+            string.Equals(a.ProcessName, app.ProcessName, StringComparison.OrdinalIgnoreCase));
+
+        if (existing != null)
+        {
+            BlockedApps.Remove(existing);
+            SaveBlockedApps();
+        }
+    }
+
+    public async Task ScanInstalledAppsAsync()
+    {
+        if (IsScanningApps) return;
+
+        IsScanningApps = true;
+        try
+        {
+            var apps = await AppScannerService.Instance.ScanInstalledAppsAsync();
+            _scannedApps = new ObservableCollection<BlockedAppInfo>(apps);
+            HasScannedApps = true;
+            ApplyScannedAppsFilter();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[DashboardViewModel] Error scanning apps: {ex.Message}");
+        }
+        finally
+        {
+            IsScanningApps = false;
+        }
+    }
+
+    private void ApplyScannedAppsFilter()
+    {
+        if (_scannedApps == null || _scannedApps.Count == 0)
+        {
+            FilteredScannedApps = new ObservableCollection<BlockedAppInfo>();
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(ScannedSearchQuery))
+        {
+            FilteredScannedApps = new ObservableCollection<BlockedAppInfo>(_scannedApps);
+            return;
+        }
+
+        string q = ScannedSearchQuery.Trim().ToLowerInvariant();
+        var matches = _scannedApps.Where(a =>
+            (!string.IsNullOrEmpty(a.Name) && a.Name.ToLowerInvariant().Contains(q)) ||
+            (!string.IsNullOrEmpty(a.ProcessName) && a.ProcessName.ToLowerInvariant().Contains(q)));
+
+        FilteredScannedApps = new ObservableCollection<BlockedAppInfo>(matches);
     }
 }

@@ -115,10 +115,22 @@ public class WidgetViewModel : ObservableObject
                 if (value)
                 {
                     UpdateFocusTask();
+                    AppBlockerService.Instance.Start();
                 }
+                else
+                {
+                    AppBlockerService.Instance.Stop();
+                }
+                OnPropertyChanged(nameof(BlockedAppsCount));
+                OnPropertyChanged(nameof(BlockedAppsBadgeText));
+                OnPropertyChanged(nameof(IsAppBlockerActive));
             }
         }
     }
+
+    public int BlockedAppsCount => AppBlockerService.Instance.BlockedCountThisSession;
+    public string BlockedAppsBadgeText => $"{AppBlockerService.Instance.BlockedCountThisSession} Blocked";
+    public bool IsAppBlockerActive => IsFocusMode && SettingsManager.Instance.Current.AppBlockingEnabled;
 
     public TodoTask? FocusTask
     {
@@ -209,6 +221,19 @@ public class WidgetViewModel : ObservableObject
         _streakService = streakService;
 
         _isFocusMode = SettingsManager.Instance.Current.IsFocusModeActive;
+        if (_isFocusMode)
+        {
+            AppBlockerService.Instance.Start();
+        }
+
+        AppBlockerService.Instance.BlockedCountChanged += () =>
+        {
+            Application.Current?.Dispatcher.InvokeAsync(() =>
+            {
+                OnPropertyChanged(nameof(BlockedAppsCount));
+                OnPropertyChanged(nameof(BlockedAppsBadgeText));
+            });
+        };
 
         // Initialize Countdown Timer
         _timer = new DispatcherTimer

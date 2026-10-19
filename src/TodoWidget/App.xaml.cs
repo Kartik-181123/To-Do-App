@@ -87,6 +87,10 @@ public partial class App : Application
         _reminderService.Start();
         _streakService = new StreakService(_database, SettingsManager.Instance, _notificationService);
         _streakService.CheckAndEvaluateYesterday();
+        if (settings.IsFocusModeActive && settings.AppBlockingEnabled)
+        {
+            AppBlockerService.Instance.Start();
+        }
         CreateTrayIcon();
         InitializeWidgetWindow();
         if (settings.WidgetVisible)
@@ -249,6 +253,21 @@ public partial class App : Application
 
     private void ExitApplication()
     {
+        var settings = SettingsManager.Instance.Current;
+        if (settings.StrictFocusLock && settings.IsFocusModeActive)
+        {
+            var res = MessageBox.Show(
+                "Focus Mode is currently active with Strict Focus Lock enabled. Are you sure you want to end your focus session and exit To-Do?",
+                "Focus Lock Active",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (res != MessageBoxResult.Yes)
+            {
+                return;
+            }
+        }
+
         try
         {
             _widgetWindow?.Close();
@@ -278,6 +297,8 @@ public partial class App : Application
 
     private void Teardown()
     {
+        AppBlockerService.Instance.Stop();
+
         if (_trayIcon != null)
         {
             _trayIcon.Visible = false;

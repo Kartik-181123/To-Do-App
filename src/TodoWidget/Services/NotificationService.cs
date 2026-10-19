@@ -166,6 +166,34 @@ public class NotificationService
             Debug.WriteLine($"[NotificationService] Failed to send streak toast: {ex.Message}");
         }
     }
+
+    public void SendAppBlocked(string appName)
+    {
+        var settings = _settingsManager.Current;
+        if (!settings.NotificationsEnabled)
+        {
+            return;
+        }
+
+        try
+        {
+            string cleanName = string.IsNullOrWhiteSpace(appName) ? "Application" : appName;
+            var builder = new ToastContentBuilder()
+                .AddText("Focus Mode Active")
+                .AddText($"{cleanName} is blocked during Focus Mode.");
+
+            if (!settings.NotificationSoundEnabled)
+            {
+                builder.AddAudio(new ToastAudio { Silent = true });
+            }
+
+            builder.Show();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[NotificationService] Failed to send app blocked toast: {ex.Message}");
+        }
+    }
     private void HandleToastActivation(ToastNotificationActivatedEventArgsCompat toastArgs)
     {
         try

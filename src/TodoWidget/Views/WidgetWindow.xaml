@@ -258,11 +258,23 @@
                                         CornerRadius="5"
                                         Padding="8,2"
                                         BorderBrush="#3B82F6"
-                                        BorderThickness="1">
+                                        BorderThickness="1"
+                                        Margin="0,0,6,0">
                                     <TextBlock Text="FOCUS SPRINT"
                                                FontSize="9.5"
                                                FontWeight="Bold"
                                                Foreground="#89B4FA" />
+                                </Border>
+                                <Border Background="#25161C"
+                                        CornerRadius="5"
+                                        Padding="8,2"
+                                        BorderBrush="#F38BA8"
+                                        BorderThickness="1"
+                                        Visibility="{Binding IsAppBlockerActive, Converter={StaticResource BoolToVis}}">
+                                    <TextBlock Text="{Binding BlockedAppsBadgeText}"
+                                               FontSize="9.5"
+                                               FontWeight="Bold"
+                                               Foreground="#F38BA8" />
                                 </Border>
                             </StackPanel>
 

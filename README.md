@@ -20,6 +20,18 @@ Unlike modern productivity tools that consume hundreds of megabytes of RAM runni
 
 ---
 
+## What's New in 5.0.0 (Major Release: App Blocker & Deep Focus)
+
+- Active Distraction App Blocking: Configure designated distraction applications that will be automatically blocked while Focus Mode is running. The background monitor safely terminates blocked programs immediately upon launch so you stay in the flow.
+- Comprehensive System App Scanner: Scans Start Menu shortcuts (all users and current user), 32-bit and 64-bit Windows Registry paths, and running processes to discover all installed applications with their extracted icons for one-click blocking.
+- Drag-and-Drop & File Picker Import: Drag and drop any executable file (.exe) or desktop shortcut (.lnk) directly into the dashboard, or use the file browser to add custom apps to your block list.
+- One-Click Distraction Presets: Pre-configured quick-add buttons for the most common productivity drains including Google Chrome, Microsoft Edge, Discord, Spotify, Steam, Epic Games, Telegram, WhatsApp, Firefox, and Riot Client.
+- Anti-Cheat Task Manager Protection: Prevents opening Windows Task Manager while Focus Mode is active, neutralizing attempts to prematurely kill To-Do before your focus session concludes.
+- Strict Focus Lock: Optional session locking that guards application exit from the system tray until Focus Mode is turned off.
+- 100% Non-Destructive Architecture: Pure in-memory process monitoring with zero registry pollution, zero file permission modifications, and zero risk of permanently breaking apps. The moment Focus Mode ends, all applications immediately launch normally.
+
+---
+
 ## What's New in 4.2.0 (UI Fixes & Bug Fixes)
 
 - Action Button Visibility Restored: Fixed a critical layout clipping bug where inherited button padding compressed small action buttons (edit, delete, voice note, refresh) down to zero width. Buttons now feature dedicated styling with distinct borders, centered glyphs, and responsive hover highlights.

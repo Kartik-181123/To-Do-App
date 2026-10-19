@@ -43,4 +43,10 @@ public class AppSettings
     public bool IsFocusModeActive { get; set; } = false;
     public int FocusSprintMinutes { get; set; } = 2;
     public int FocusPomodoroMinutes { get; set; } = 25;
+
+    // App Blocking & Deep Focus Suite
+    public bool AppBlockingEnabled { get; set; } = true;
+    public bool BlockTaskManagerInFocus { get; set; } = true;
+    public bool StrictFocusLock { get; set; } = false;
+    public List<BlockedAppInfo> BlockedApps { get; set; } = new();
 }
