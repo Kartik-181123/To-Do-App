@@ -232,3 +232,17 @@ public class StringToVisibilityConverter : IValueConverter
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotSupportedException();
 }
+
+
+public class NullToVisibilityConverter : IValueConverter
+{
+    public bool Invert { get; set; }
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        bool isNotNull = value != null;
+        if (Invert) isNotNull = !isNotNull;
+        return isNotNull ? Visibility.Visible : Visibility.Collapsed;
+    }
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}

@@ -53,7 +53,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="BtnBorder" CornerRadius="6" Background="Transparent">
-                            <TextBlock x:Name="Icon" Text="⌖" FontSize="13" FontWeight="Bold" Foreground="#89B4FA" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <TextBlock x:Name="Icon" Text="FOCUS" FontSize="13" FontWeight="Bold" Foreground="#89B4FA" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <DataTrigger Binding="{Binding IsFocusMode}" Value="True">
@@ -147,14 +147,14 @@
                                     ToolTip="Open Dashboard"
                                     Command="{Binding OpenDashboardCommand}"
                                     Margin="0,0,2,0">
-                                <TextBlock Text="⚙" FontSize="11.5" Foreground="#9BA3C7" />
+                                <TextBlock Text="::" FontSize="11.5" Foreground="#9BA3C7" />
                             </Button>
 
                             <!-- Hide Widget Button -->
                             <Button Style="{StaticResource HeaderIconButton}"
                                     ToolTip="Hide Widget"
                                     Click="CloseButton_Click">
-                                <TextBlock Text="✕" FontSize="10.5" Foreground="#9BA3C7" />
+                                <TextBlock Text="X" FontSize="10.5" Foreground="#9BA3C7" />
                             </Button>
                         </StackPanel>
                     </Grid>
@@ -195,7 +195,7 @@
                                 HorizontalAlignment="Center"
                                 Padding="12">
                             <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="✓"
+                                <TextBlock Text="DONE"
                                            FontSize="20"
                                            FontWeight="Bold"
                                            Foreground="#3B82F6"

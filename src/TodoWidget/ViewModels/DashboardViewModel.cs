@@ -3,17 +3,21 @@ namespace TodoWidget.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using TodoWidget.Data;
 using TodoWidget.Helpers;
 using TodoWidget.Models;
 using TodoWidget.Services;
+
 public class DashboardViewModel : ObservableObject
 {
     private readonly AppDatabase _database;
     private readonly StreakService? _streakService;
+    private DispatcherTimer? _dockTimer;
 
     private ObservableCollection<TodoTask> _allTasks = new();
     private ObservableCollection<TodoTask> _filteredTasks = new();
@@ -30,19 +34,46 @@ public class DashboardViewModel : ObservableObject
     private int _totalCompleted;
     private int _totalFailed;
     private double _completionRate;
+
+    // Category / Collection Navigation
+    private string _selectedCategory = "All";
+    private int _countAll;
+    private int _countToday;
+    private int _countUpcoming;
+    private int _countHighPriority;
+    private int _countVoiceNotes;
+    private int _countCompleted;
+
+    // Inspector Details Panel
+    private bool _isDetailsOpen = true;
+
+    // Bottom Dock Timeline & Focus Sprint
+    private string _quickAddTitle = string.Empty;
+    private TaskPriority _quickAddPriority = TaskPriority.Medium;
+    private int _dailyCompletedCount;
+    private int _dailyTotalCount;
+    private double _dailyProgressPercentage;
+    private string _dailyProgressFractionText = "0 of 0 completed";
+    private int _dockTimerSeconds = 120;
+    private bool _isDockTimerRunning;
+    private string _dockTimerMode = "Sprint";
+
     public event Action? RequestAddTask;
     public event Action<TodoTask>? RequestEditTask;
     public SettingsViewModel SettingsVM { get; }
+
     public ObservableCollection<TodoTask> AllTasks
     {
         get => _allTasks;
         set => SetProperty(ref _allTasks, value);
     }
+
     public ObservableCollection<TodoTask> FilteredTasks
     {
         get => _filteredTasks;
         set => SetProperty(ref _filteredTasks, value);
     }
+
     public string FilterText
     {
         get => _filterText;
@@ -54,6 +85,7 @@ public class DashboardViewModel : ObservableObject
             }
         }
     }
+
     public TodoTaskStatus? StatusFilter
     {
         get => _statusFilter;
@@ -65,6 +97,7 @@ public class DashboardViewModel : ObservableObject
             }
         }
     }
+
     public TaskPriority? PriorityFilter
     {
         get => _priorityFilter;
@@ -76,61 +109,212 @@ public class DashboardViewModel : ObservableObject
             }
         }
     }
+
+    public string SelectedCategory
+    {
+        get => _selectedCategory;
+        set
+        {
+            if (SetProperty(ref _selectedCategory, value))
+            {
+                ApplyFilters();
+            }
+        }
+    }
+
+    public int CountAll
+    {
+        get => _countAll;
+        private set => SetProperty(ref _countAll, value);
+    }
+
+    public int CountToday
+    {
+        get => _countToday;
+        private set => SetProperty(ref _countToday, value);
+    }
+
+    public int CountUpcoming
+    {
+        get => _countUpcoming;
+        private set => SetProperty(ref _countUpcoming, value);
+    }
+
+    public int CountHighPriority
+    {
+        get => _countHighPriority;
+        private set => SetProperty(ref _countHighPriority, value);
+    }
+
+    public int CountVoiceNotes
+    {
+        get => _countVoiceNotes;
+        private set => SetProperty(ref _countVoiceNotes, value);
+    }
+
+    public int CountCompleted
+    {
+        get => _countCompleted;
+        private set => SetProperty(ref _countCompleted, value);
+    }
+
     public TodoTask? SelectedTask
     {
         get => _selectedTask;
-        set => SetProperty(ref _selectedTask, value);
+        set
+        {
+            if (SetProperty(ref _selectedTask, value))
+            {
+                OnPropertyChanged(nameof(IsTaskSelected));
+            }
+        }
     }
+
+    public bool IsTaskSelected => SelectedTask != null;
+
+    public bool IsDetailsOpen
+    {
+        get => _isDetailsOpen;
+        set => SetProperty(ref _isDetailsOpen, value);
+    }
+
     public int SelectedTabIndex
     {
         get => _selectedTabIndex;
         set => SetProperty(ref _selectedTabIndex, value);
     }
+
     public int TotalTasks
     {
         get => _totalTasks;
         set => SetProperty(ref _totalTasks, value);
     }
+
     public int CompletedToday
     {
         get => _completedToday;
         set => SetProperty(ref _completedToday, value);
     }
+
     public int PendingCount
     {
         get => _pendingCount;
         set => SetProperty(ref _pendingCount, value);
     }
+
     public int StreakCount
     {
         get => _streakCount;
         set => SetProperty(ref _streakCount, value);
     }
+
     public int LongestStreak
     {
         get => _longestStreak;
         set => SetProperty(ref _longestStreak, value);
     }
+
     public int TotalCompleted
     {
         get => _totalCompleted;
         set => SetProperty(ref _totalCompleted, value);
     }
+
     public int TotalFailed
     {
         get => _totalFailed;
         set => SetProperty(ref _totalFailed, value);
     }
+
     public double CompletionRate
     {
         get => _completionRate;
         set => SetProperty(ref _completionRate, value);
     }
+
+    // Bottom Dock Timeline & Focus Sprint Properties
+    public string QuickAddTitle
+    {
+        get => _quickAddTitle;
+        set => SetProperty(ref _quickAddTitle, value);
+    }
+
+    public TaskPriority QuickAddPriority
+    {
+        get => _quickAddPriority;
+        set => SetProperty(ref _quickAddPriority, value);
+    }
+
+    public int DailyCompletedCount
+    {
+        get => _dailyCompletedCount;
+        private set => SetProperty(ref _dailyCompletedCount, value);
+    }
+
+    public int DailyTotalCount
+    {
+        get => _dailyTotalCount;
+        private set => SetProperty(ref _dailyTotalCount, value);
+    }
+
+    public double DailyProgressPercentage
+    {
+        get => _dailyProgressPercentage;
+        private set => SetProperty(ref _dailyProgressPercentage, value);
+    }
+
+    public string DailyProgressFractionText
+    {
+        get => _dailyProgressFractionText;
+        private set => SetProperty(ref _dailyProgressFractionText, value);
+    }
+
+    public string DockTimerDisplay
+    {
+        get
+        {
+            int m = _dockTimerSeconds / 60;
+            int s = _dockTimerSeconds % 60;
+            return $"{m:D2}:{s:D2}";
+        }
+    }
+
+    public bool IsDockTimerRunning
+    {
+        get => _isDockTimerRunning;
+        private set => SetProperty(ref _isDockTimerRunning, value);
+    }
+
+    public string DockTimerMode
+    {
+        get => _dockTimerMode;
+        set
+        {
+            if (SetProperty(ref _dockTimerMode, value))
+            {
+                ResetDockTimer();
+            }
+        }
+    }
+
+    // Commands
     public RelayCommand AddTaskCommand { get; }
     public RelayCommand<TodoTask> EditTaskCommand { get; }
     public RelayCommand<TodoTask> DeleteTaskCommand { get; }
     public RelayCommand<TodoTask> ToggleTaskStatusCommand { get; }
     public RelayCommand<TodoTask> ToggleVoiceNoteCommand { get; }
+    public RelayCommand<TodoTask> SelectTaskCommand { get; }
+    public RelayCommand<string> SetCategoryCommand { get; }
+    public RelayCommand ToggleDetailsCommand { get; }
+    public RelayCommand QuickAddTaskCommand { get; }
+    public RelayCommand SnoozeSelectedTaskCommand { get; }
+    public RelayCommand ToggleSelectedTaskStatusCommand { get; }
+    public RelayCommand DeleteSelectedTaskCommand { get; }
+    public RelayCommand EditSelectedTaskCommand { get; }
+    public RelayCommand ToggleDockTimerCommand { get; }
+    public RelayCommand ResetDockTimerCommand { get; }
+    public RelayCommand<string> SetDockTimerModeCommand { get; }
+
     public RelayCommand OpenSettingsCommand { get; }
     public RelayCommand RefreshCommand { get; }
 
@@ -291,6 +475,13 @@ public class DashboardViewModel : ObservableObject
 
         SettingsVM = new SettingsViewModel(database);
 
+        // Initialize Dock Timer
+        _dockTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(1)
+        };
+        _dockTimer.Tick += DockTimer_Tick;
+
         AddTaskCommand = new RelayCommand(() => RequestAddTask?.Invoke());
         EditTaskCommand = new RelayCommand<TodoTask>(task =>
         {
@@ -309,7 +500,58 @@ public class DashboardViewModel : ObservableObject
                 AudioService.Instance.TogglePlay(task.VoiceNotePath);
             }
         });
-        OpenSettingsCommand = new RelayCommand(() => SelectedTabIndex = 4);
+        SelectTaskCommand = new RelayCommand<TodoTask>(task =>
+        {
+            if (task != null)
+            {
+                SelectedTask = task;
+            }
+        });
+        SetCategoryCommand = new RelayCommand<string>(cat =>
+        {
+            if (!string.IsNullOrEmpty(cat))
+            {
+                SelectedCategory = cat;
+            }
+        });
+        ToggleDetailsCommand = new RelayCommand(() => IsDetailsOpen = !IsDetailsOpen);
+
+        QuickAddTaskCommand = new RelayCommand(ExecuteQuickAdd);
+
+        SnoozeSelectedTaskCommand = new RelayCommand(ExecuteSnoozeSelectedTask);
+        ToggleSelectedTaskStatusCommand = new RelayCommand(() =>
+        {
+            if (SelectedTask != null)
+            {
+                ExecuteToggleStatus(SelectedTask);
+            }
+        });
+        DeleteSelectedTaskCommand = new RelayCommand(() =>
+        {
+            if (SelectedTask != null)
+            {
+                ExecuteDeleteTask(SelectedTask);
+            }
+        });
+        EditSelectedTaskCommand = new RelayCommand(() =>
+        {
+            if (SelectedTask != null)
+            {
+                RequestEditTask?.Invoke(SelectedTask);
+            }
+        });
+
+        ToggleDockTimerCommand = new RelayCommand(ExecuteToggleDockTimer);
+        ResetDockTimerCommand = new RelayCommand(ResetDockTimer);
+        SetDockTimerModeCommand = new RelayCommand<string>(mode =>
+        {
+            if (!string.IsNullOrEmpty(mode))
+            {
+                DockTimerMode = mode;
+            }
+        });
+
+        OpenSettingsCommand = new RelayCommand(() => SelectedTabIndex = 5);
         RefreshCommand = new RelayCommand(RefreshAll);
 
         ConnectGitHubCommand = new RelayCommand(async () =>
@@ -431,6 +673,95 @@ public class DashboardViewModel : ObservableObject
 
         RefreshAll();
     }
+
+    private void DockTimer_Tick(object? sender, EventArgs e)
+    {
+        if (_dockTimerSeconds > 0)
+        {
+            _dockTimerSeconds--;
+            OnPropertyChanged(nameof(DockTimerDisplay));
+        }
+        else
+        {
+            _dockTimer?.Stop();
+            IsDockTimerRunning = false;
+            OnPropertyChanged(nameof(DockTimerDisplay));
+            NotificationService.Instance.SendAppBlocked("Focus Session Finished! Great work.");
+        }
+    }
+
+    private void ExecuteToggleDockTimer()
+    {
+        if (IsDockTimerRunning)
+        {
+            _dockTimer?.Stop();
+            IsDockTimerRunning = false;
+        }
+        else
+        {
+            _dockTimer?.Start();
+            IsDockTimerRunning = true;
+        }
+    }
+
+    private void ResetDockTimer()
+    {
+        _dockTimer?.Stop();
+        IsDockTimerRunning = false;
+
+        var settings = SettingsManager.Instance?.Current;
+        if (DockTimerMode == "Pomodoro")
+        {
+            int pMins = settings != null && settings.FocusPomodoroMinutes > 0 ? settings.FocusPomodoroMinutes : 25;
+            _dockTimerSeconds = pMins * 60;
+        }
+        else
+        {
+            int sMins = settings != null && settings.FocusSprintMinutes > 0 ? settings.FocusSprintMinutes : 2;
+            _dockTimerSeconds = sMins * 60;
+        }
+
+        OnPropertyChanged(nameof(DockTimerDisplay));
+    }
+
+    private void ExecuteQuickAdd()
+    {
+        if (string.IsNullOrWhiteSpace(QuickAddTitle))
+            return;
+
+        var task = new TodoTask
+        {
+            Title = QuickAddTitle.Trim(),
+            Priority = QuickAddPriority,
+            DueDate = DateTime.Today.AddHours(23).AddMinutes(59),
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now,
+            Status = TodoTaskStatus.Pending
+        };
+
+        _database.UpsertTask(task);
+        QuickAddTitle = string.Empty;
+        RefreshAll();
+
+        SelectedTask = task;
+
+        if (GitHubSyncService.Instance.IsConnected)
+        {
+            _ = Task.Run(async () => await GitHubSyncService.Instance.SyncNowAsync().ConfigureAwait(false));
+        }
+    }
+
+    private void ExecuteSnoozeSelectedTask()
+    {
+        if (SelectedTask == null) return;
+        SelectedTask.HasBeenSnoozed = true;
+        SelectedTask.SnoozedUntil = DateTime.Now.AddMinutes(15);
+        SelectedTask.UpdatedAt = DateTime.Now;
+        _database.UpsertTask(SelectedTask);
+        RefreshAll();
+        OnPropertyChanged(nameof(SelectedTask));
+    }
+
     public void RefreshAll()
     {
         RunOnDispatcher(() =>
@@ -463,7 +794,34 @@ public class DashboardViewModel : ObservableObject
             int resolvedTotal = TotalCompleted + TotalFailed;
             CompletionRate = resolvedTotal > 0 ? Math.Round((double)TotalCompleted / resolvedTotal * 100.0, 1) : 0;
 
+            // Recalculate Category Counts
+            CountAll = tasks.Count;
+            CountToday = tasks.Count(t => t.AppliesToDay(DateTime.Today) || (t.EffectiveDueDate.HasValue && t.EffectiveDueDate.Value.Date == DateTime.Today));
+            DateTime now = DateTime.Now;
+            CountUpcoming = tasks.Count(t => t.Status == TodoTaskStatus.Pending && t.EffectiveDueDate.HasValue && t.EffectiveDueDate.Value >= now && t.EffectiveDueDate.Value <= now.AddDays(2));
+            CountHighPriority = tasks.Count(t => t.Priority == TaskPriority.High || t.Priority == TaskPriority.Critical);
+            CountVoiceNotes = tasks.Count(t => t.HasVoiceNote);
+            CountCompleted = tasks.Count(t => t.Status == TodoTaskStatus.Completed);
+
+            // Daily dock metrics
+            var todayTasks = tasks.Where(t => t.AppliesToDay(DateTime.Today) || (t.EffectiveDueDate.HasValue && t.EffectiveDueDate.Value.Date == DateTime.Today)).ToList();
+            DailyTotalCount = todayTasks.Count > 0 ? todayTasks.Count : (CompletedToday + PendingCount);
+            DailyCompletedCount = CompletedToday;
+            DailyProgressPercentage = DailyTotalCount > 0 ? Math.Min(100.0, Math.Round((double)DailyCompletedCount / DailyTotalCount * 100.0, 1)) : 0.0;
+            DailyProgressFractionText = $"{DailyCompletedCount} of {DailyTotalCount} completed";
+
             ApplyFilters();
+
+            // Retain SelectedTask if still present, or select first if null and tasks exist
+            if (SelectedTask != null)
+            {
+                var refreshed = tasks.FirstOrDefault(t => t.Id == SelectedTask.Id);
+                SelectedTask = refreshed;
+            }
+            if (SelectedTask == null && FilteredTasks.Count > 0)
+            {
+                SelectedTask = FilteredTasks.FirstOrDefault();
+            }
         });
     }
 
@@ -471,6 +829,30 @@ public class DashboardViewModel : ObservableObject
     {
         var query = AllTasks.AsEnumerable();
 
+        // 1. Category Filter
+        if (SelectedCategory == "Today")
+        {
+            query = query.Where(t => t.AppliesToDay(DateTime.Today) || (t.EffectiveDueDate.HasValue && t.EffectiveDueDate.Value.Date == DateTime.Today));
+        }
+        else if (SelectedCategory == "Upcoming")
+        {
+            DateTime now = DateTime.Now;
+            query = query.Where(t => t.Status == TodoTaskStatus.Pending && t.EffectiveDueDate.HasValue && t.EffectiveDueDate.Value >= now && t.EffectiveDueDate.Value <= now.AddDays(2));
+        }
+        else if (SelectedCategory == "HighPriority")
+        {
+            query = query.Where(t => t.Priority == TaskPriority.High || t.Priority == TaskPriority.Critical);
+        }
+        else if (SelectedCategory == "VoiceNotes")
+        {
+            query = query.Where(t => t.HasVoiceNote);
+        }
+        else if (SelectedCategory == "Completed")
+        {
+            query = query.Where(t => t.Status == TodoTaskStatus.Completed);
+        }
+
+        // 2. Text Search
         if (!string.IsNullOrWhiteSpace(FilterText))
         {
             string search = FilterText.Trim().ToLowerInvariant();
@@ -479,11 +861,13 @@ public class DashboardViewModel : ObservableObject
                 (t.Description != null && t.Description.ToLowerInvariant().Contains(search)));
         }
 
+        // 3. Status Filter
         if (StatusFilter.HasValue)
         {
             query = query.Where(t => t.Status == StatusFilter.Value);
         }
 
+        // 4. Priority Filter
         if (PriorityFilter.HasValue)
         {
             query = query.Where(t => t.Priority == PriorityFilter.Value);
@@ -504,6 +888,10 @@ public class DashboardViewModel : ObservableObject
         if (target == null) return;
 
         _database.DeleteTask(target.Id);
+        if (SelectedTask != null && SelectedTask.Id == target.Id)
+        {
+            SelectedTask = null;
+        }
         RefreshAll();
     }
 
@@ -519,23 +907,20 @@ public class DashboardViewModel : ObservableObject
         }
         else
         {
-            var result = MessageBox.Show(
-                $"Are you sure this task is completed?\n\n\"{target.Title}\"",
-                "Complete Task",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            if (result != MessageBoxResult.Yes)
-            {
-                return;
-            }
-
             target.Status = TodoTaskStatus.Completed;
             target.CompletedAt = DateTime.Now;
         }
 
         target.UpdatedAt = DateTime.Now;
         _database.UpsertTask(target);
+
+        if (SelectedTask != null && SelectedTask.Id == target.Id)
+        {
+            SelectedTask = target;
+            OnPropertyChanged(nameof(SelectedTask));
+            OnPropertyChanged(nameof(IsTaskSelected));
+        }
+
         RefreshAll();
 
         if (GitHubSyncService.Instance.IsConnected)
@@ -638,7 +1023,7 @@ public class DashboardViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[DashboardViewModel] Error scanning apps: {ex.Message}");
+            Debug.WriteLine($"[DashboardViewModel] Error scanning apps: {ex.Message}");
         }
         finally
         {

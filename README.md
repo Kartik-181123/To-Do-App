@@ -20,6 +20,19 @@ Unlike modern productivity tools that consume hundreds of megabytes of RAM runni
 
 ---
 
+## What's New in 6.0.0 (Major Release: Studio UI & Workbench Overhaul)
+
+- Studio Workbench Redesign: Re-engineered from scratch with a professional dark slate modular workbench inspired by modern editing suites and Fluent 2. Features a top studio command strip, 3-column modular workbench, and unified productivity layout.
+- Three-Pane Studio Layout:
+  - Collections Explorer: Instant categorization for All Tasks, Today's Schedule, Due Soon (48h), High Priority, Voice Memos, and Completed Archive with live badge counts.
+  - Task Canvas: High-density interactive cards with priority accent indicators, smooth status checkboxes, deadline tags, and inline voice memo playback.
+  - DETAILS Inspector Rail: A dedicated inspector panel showing full task properties, rich description, effective deadline countdown, recurring schedule breakdown, voice memo duration, timestamps, and quick action controls (Edit, Snooze 15m, Delete).
+- Lower Timeline & Focus Activity Dock: An integrated dock across the base of the workbench combining a real-time daily progress gauge, a 2-minute kickstart and 25-minute Pomodoro timer pod, and instant quick-task input bar (press Enter to immediately add to today's schedule).
+- Safe COM & Process Hardening: Guarded shortcut resolution and defensive process termination to prevent operating system access errors and ensure completely safe, zero-bug process lifecycle management.
+- Zero Emoji Compliance: Refined geometric glyphs and text status chips across all controls for an ultra-clean, professional desktop appearance.
+
+---
+
 ## What's New in 5.0.0 (Major Release: App Blocker & Deep Focus)
 
 - Active Distraction App Blocking: Configure designated distraction applications that will be automatically blocked while Focus Mode is running. The background monitor safely terminates blocked programs immediately upon launch so you stay in the flow.

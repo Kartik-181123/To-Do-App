@@ -157,7 +157,10 @@ public class AppBlockerService : IDisposable
                         // Match found - terminate immediately
                         try
                         {
-                            proc.Kill(entireProcessTree: true);
+                            if (!proc.HasExited)
+                            {
+                                proc.Kill(entireProcessTree: true);
+                            }
                             BlockedCountThisSession++;
 
                             Debug.WriteLine($"[AppBlockerService] Blocked and terminated: {pName} ({appDisplayName})");

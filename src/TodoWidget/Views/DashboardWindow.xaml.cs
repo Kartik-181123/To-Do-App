@@ -5,14 +5,19 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using TodoWidget.Data;
 using TodoWidget.Models;
+using TodoWidget.Services;
 using TodoWidget.ViewModels;
+
 public partial class DashboardWindow : Window
 {
     private readonly DashboardViewModel _viewModel;
     private readonly AppDatabase _database;
+    private bool _isExplicitExit;
+
     public DashboardWindow(DashboardViewModel viewModel, AppDatabase database)
     {
         InitializeComponent();
@@ -42,8 +47,6 @@ public partial class DashboardWindow : Window
         {
         }
     }
-
-    private bool _isExplicitExit;
 
     public void ForceClose()
     {
@@ -100,19 +103,22 @@ public partial class DashboardWindow : Window
             switch (_viewModel.SelectedTabIndex)
             {
                 case 0:
-                    NavTasksRadio.IsChecked = true;
+                    if (NavWorkbenchRadio != null) NavWorkbenchRadio.IsChecked = true;
                     break;
                 case 1:
-                    NavStatsRadio.IsChecked = true;
+                    if (NavFocusRadio != null) NavFocusRadio.IsChecked = true;
                     break;
                 case 2:
-                    NavAccountRadio.IsChecked = true;
+                    if (NavBlockerRadio != null) NavBlockerRadio.IsChecked = true;
                     break;
                 case 3:
-                    NavBlockerRadio.IsChecked = true;
+                    if (NavAnalyticsRadio != null) NavAnalyticsRadio.IsChecked = true;
                     break;
                 case 4:
-                    NavSettingsRadio.IsChecked = true;
+                    if (NavAccountRadio != null) NavAccountRadio.IsChecked = true;
+                    break;
+                case 5:
+                    if (NavSettingsRadio != null) NavSettingsRadio.IsChecked = true;
                     break;
             }
         }
@@ -125,9 +131,9 @@ public partial class DashboardWindow : Window
         {
             var anim = new System.Windows.Media.Animation.DoubleAnimation
             {
-                From = 0.4,
+                From = 0.45,
                 To = 1.0,
-                Duration = TimeSpan.FromMilliseconds(180),
+                Duration = TimeSpan.FromMilliseconds(160),
                 EasingFunction = new System.Windows.Media.Animation.QuadraticEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut }
             };
             activeTab.BeginAnimation(UIElement.OpacityProperty, anim);
@@ -139,16 +145,22 @@ public partial class DashboardWindow : Window
         }
     }
 
-    private void NavTasks_Checked(object sender, RoutedEventArgs e)
+    private void HideAllTabs()
     {
-        if (TasksTabView == null) return;
-
-        TasksTabView.Visibility = Visibility.Visible;
-        StatsTabView.Visibility = Visibility.Collapsed;
-        AccountTabView.Visibility = Visibility.Collapsed;
+        if (WorkbenchTabView != null) WorkbenchTabView.Visibility = Visibility.Collapsed;
+        if (FocusRoomTabView != null) FocusRoomTabView.Visibility = Visibility.Collapsed;
         if (BlockerTabView != null) BlockerTabView.Visibility = Visibility.Collapsed;
-        SettingsTabView.Visibility = Visibility.Collapsed;
-        AnimateTabTransition(TasksTabView);
+        if (AnalyticsTabView != null) AnalyticsTabView.Visibility = Visibility.Collapsed;
+        if (AccountTabView != null) AccountTabView.Visibility = Visibility.Collapsed;
+        if (SettingsTabView != null) SettingsTabView.Visibility = Visibility.Collapsed;
+    }
+
+    private void NavWorkbench_Checked(object sender, RoutedEventArgs e)
+    {
+        if (WorkbenchTabView == null) return;
+        HideAllTabs();
+        WorkbenchTabView.Visibility = Visibility.Visible;
+        AnimateTabTransition(WorkbenchTabView);
 
         if (_viewModel != null)
         {
@@ -157,16 +169,12 @@ public partial class DashboardWindow : Window
         }
     }
 
-    private void NavStats_Checked(object sender, RoutedEventArgs e)
+    private void NavFocus_Checked(object sender, RoutedEventArgs e)
     {
-        if (StatsTabView == null) return;
-
-        TasksTabView.Visibility = Visibility.Collapsed;
-        StatsTabView.Visibility = Visibility.Visible;
-        AccountTabView.Visibility = Visibility.Collapsed;
-        if (BlockerTabView != null) BlockerTabView.Visibility = Visibility.Collapsed;
-        SettingsTabView.Visibility = Visibility.Collapsed;
-        AnimateTabTransition(StatsTabView);
+        if (FocusRoomTabView == null) return;
+        HideAllTabs();
+        FocusRoomTabView.Visibility = Visibility.Visible;
+        AnimateTabTransition(FocusRoomTabView);
 
         if (_viewModel != null)
         {
@@ -175,34 +183,26 @@ public partial class DashboardWindow : Window
         }
     }
 
-    private void NavAccount_Checked(object sender, RoutedEventArgs e)
+    private void NavBlocker_Checked(object sender, RoutedEventArgs e)
     {
-        if (AccountTabView == null) return;
-
-        TasksTabView.Visibility = Visibility.Collapsed;
-        StatsTabView.Visibility = Visibility.Collapsed;
-        AccountTabView.Visibility = Visibility.Visible;
-        if (BlockerTabView != null) BlockerTabView.Visibility = Visibility.Collapsed;
-        SettingsTabView.Visibility = Visibility.Collapsed;
-        AnimateTabTransition(AccountTabView);
+        if (BlockerTabView == null) return;
+        HideAllTabs();
+        BlockerTabView.Visibility = Visibility.Visible;
+        AnimateTabTransition(BlockerTabView);
 
         if (_viewModel != null)
         {
             _viewModel.SelectedTabIndex = 2;
-            _viewModel.CloudSync.LoadFromSettings();
+            _viewModel.RefreshAll();
         }
     }
 
-    private void NavBlocker_Checked(object sender, RoutedEventArgs e)
+    private void NavAnalytics_Checked(object sender, RoutedEventArgs e)
     {
-        if (BlockerTabView == null) return;
-
-        TasksTabView.Visibility = Visibility.Collapsed;
-        StatsTabView.Visibility = Visibility.Collapsed;
-        AccountTabView.Visibility = Visibility.Collapsed;
-        BlockerTabView.Visibility = Visibility.Visible;
-        SettingsTabView.Visibility = Visibility.Collapsed;
-        AnimateTabTransition(BlockerTabView);
+        if (AnalyticsTabView == null) return;
+        HideAllTabs();
+        AnalyticsTabView.Visibility = Visibility.Visible;
+        AnimateTabTransition(AnalyticsTabView);
 
         if (_viewModel != null)
         {
@@ -211,20 +211,30 @@ public partial class DashboardWindow : Window
         }
     }
 
+    private void NavAccount_Checked(object sender, RoutedEventArgs e)
+    {
+        if (AccountTabView == null) return;
+        HideAllTabs();
+        AccountTabView.Visibility = Visibility.Visible;
+        AnimateTabTransition(AccountTabView);
+
+        if (_viewModel != null)
+        {
+            _viewModel.SelectedTabIndex = 4;
+            _viewModel.CloudSync.LoadFromSettings();
+        }
+    }
+
     private void NavSettings_Checked(object sender, RoutedEventArgs e)
     {
         if (SettingsTabView == null) return;
-
-        TasksTabView.Visibility = Visibility.Collapsed;
-        StatsTabView.Visibility = Visibility.Collapsed;
-        AccountTabView.Visibility = Visibility.Collapsed;
-        if (BlockerTabView != null) BlockerTabView.Visibility = Visibility.Collapsed;
+        HideAllTabs();
         SettingsTabView.Visibility = Visibility.Visible;
         AnimateTabTransition(SettingsTabView);
 
         if (_viewModel != null)
         {
-            _viewModel.SelectedTabIndex = 4;
+            _viewModel.SelectedTabIndex = 5;
         }
     }
 
@@ -270,17 +280,28 @@ public partial class DashboardWindow : Window
         }
     }
 
-    private void StatusFilterCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void TaskList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (_viewModel == null || StatusFilterCombo == null) return;
-
-        _viewModel.StatusFilter = StatusFilterCombo.SelectedIndex switch
+        if (sender is ListBox listBox && listBox.SelectedItem is TodoTask task)
         {
-            1 => TodoTaskStatus.Pending,
-            2 => TodoTaskStatus.Completed,
-            3 => TodoTaskStatus.Failed,
-            _ => null
-        };
+            _viewModel.SelectedTask = task;
+        }
+    }
+
+    private void TaskRow_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (_viewModel.SelectedTask != null)
+        {
+            _viewModel.EditTaskCommand.Execute(_viewModel.SelectedTask);
+        }
+    }
+
+    private void QuickAddTextBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            _viewModel.QuickAddTaskCommand.Execute(null);
+        }
     }
 
     private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
@@ -293,5 +314,17 @@ public partial class DashboardWindow : Window
         catch
         {
         }
+    }
+    private void StatusFilterCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_viewModel == null || StatusFilterCombo == null) return;
+
+        _viewModel.StatusFilter = StatusFilterCombo.SelectedIndex switch
+        {
+            1 => TodoTaskStatus.Pending,
+            2 => TodoTaskStatus.Completed,
+            3 => TodoTaskStatus.Failed,
+            _ => null
+        };
     }
 }

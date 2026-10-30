@@ -374,8 +374,26 @@ public class AppScannerService
                 {
                     dynamic shortcut = shell.CreateShortcut(shortcutPath);
                     string target = shortcut.TargetPath;
-                    Marshal.FinalReleaseComObject(shortcut);
-                    Marshal.FinalReleaseComObject(shell);
+                    try
+                    {
+                        if (shortcut != null && Marshal.IsComObject(shortcut))
+                        {
+                            Marshal.FinalReleaseComObject(shortcut);
+                        }
+                    }
+                    catch
+                    {
+                    }
+                    try
+                    {
+                        if (shell != null && Marshal.IsComObject(shell))
+                        {
+                            Marshal.FinalReleaseComObject(shell);
+                        }
+                    }
+                    catch
+                    {
+                    }
                     return target;
                 }
             }

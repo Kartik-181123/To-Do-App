@@ -74,7 +74,7 @@
                                 BorderBrush="#6C7086"
                                 BorderThickness="1.5">
                             <TextBlock x:Name="CheckMark"
-                                       Text="✓"
+                                       Text="OK"
                                        FontSize="11"
                                        FontWeight="Bold"
                                        Foreground="#10B981"
@@ -166,7 +166,7 @@
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="VnBorder" CornerRadius="4" Background="#181825" BorderBrush="#252A42" BorderThickness="1">
-                                <TextBlock Text="▶"
+                                <TextBlock Text="PLAY"
                                            FontSize="9"
                                            Foreground="#A6E3A1"
                                            HorizontalAlignment="Center"
@@ -195,7 +195,7 @@
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="BtnBorder" CornerRadius="4" Background="#181825" BorderBrush="#252A42" BorderThickness="1">
-                                <TextBlock Text="✕"
+                                <TextBlock Text="X"
                                            FontSize="10"
                                            FontWeight="Bold"
                                            Foreground="#9BA3C7"
