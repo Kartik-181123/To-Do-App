@@ -260,7 +260,7 @@ public class DashboardViewModel : ObservableObject
     public double DailyProgressPercentage
     {
         get => _dailyProgressPercentage;
-        private set => SetProperty(ref _dailyProgressPercentage, value);
+        set => SetProperty(ref _dailyProgressPercentage, value);
     }
 
     public string DailyProgressFractionText

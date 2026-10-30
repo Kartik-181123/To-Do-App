@@ -925,7 +925,7 @@
                                     <TextBlock Grid.Column="1" Text="{Binding DailyProgressFractionText}" FontSize="11" Foreground="#8EA3D0" />
                                 </Grid>
                                 <ProgressBar Height="6"
-                                             Value="{Binding DailyProgressPercentage}"
+                                             Value="{Binding DailyProgressPercentage, Mode=OneWay}"
                                              Maximum="100"
                                              Background="#181D29"
                                              Foreground="#10B981"
