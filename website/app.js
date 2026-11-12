@@ -308,12 +308,12 @@
       if (!res.ok) throw new Error("Release fetch failed");
       const data = await res.json();
 
-      const version = data.tag_name || "v6.0.0";
+      const version = data.tag_name || "v6.1.0";
       // Find installer asset (ToDoSetup-*.exe)
       const asset = (data.assets || []).find((a) => a.name.endsWith(".exe"));
 
       if (releaseBadge) {
-        releaseBadge.textContent = `${version} \u00B7 Studio Workbench`;
+        releaseBadge.textContent = `${version} \u00B7 Stability & Polish`;
       }
 
       if (asset) {

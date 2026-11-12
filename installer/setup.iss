@@ -7,7 +7,7 @@
 ; =====================================================================
 
 #define MyAppName "To-Do"
-#define MyAppVersion "6.0.0"
+#define MyAppVersion "6.1.0"
 #define MyAppPublisher "Kartik"
 #define MyAppExeName "TodoWidget.exe"
 #define MyAppDescription "Ultra-lightweight desktop todo widget with streak gamification"

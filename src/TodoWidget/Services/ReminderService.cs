@@ -106,6 +106,8 @@ public sealed class ReminderService : IDisposable
             .OrderBy(m => m)
             .ToList();
 
+        var modifiedTasks = new List<TodoTask>();
+
         foreach (var task in pendingTasks)
         {
             task.FiredReminderOffsets ??= new HashSet<int>();
@@ -142,8 +144,13 @@ public sealed class ReminderService : IDisposable
 
             if (taskModified)
             {
-                _database.UpsertTask(task);
+                modifiedTasks.Add(task);
             }
+        }
+
+        foreach (var modified in modifiedTasks)
+        {
+            _database.UpsertTask(modified);
         }
     }
     public void Dispose()

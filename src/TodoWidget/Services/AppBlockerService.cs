@@ -122,7 +122,7 @@ public class AppBlockerService : IDisposable
                         string pName = CleanProcessName(app.ProcessName);
                         if (!string.IsNullOrEmpty(pName) && !ImmuneProcesses.Contains(pName))
                         {
-                            targets[pName] = string.IsNullOrWhiteSpace(app.Name) ? pName : app.Name;
+                            targets.TryAdd(pName, string.IsNullOrWhiteSpace(app.Name) ? pName : app.Name);
                         }
                     }
                 }

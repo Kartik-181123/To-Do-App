@@ -1,6 +1,6 @@
 # To-Do
 
-[![Download v6.0.0](https://img.shields.io/badge/Download-v6.0.0-10B981?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/Kartik-181123/To-Do-App/releases/latest)
+[![Download v6.1.0](https://img.shields.io/badge/Download-v6.1.0-10B981?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/Kartik-181123/To-Do-App/releases/latest)
 [![Release](https://img.shields.io/github/v/release/Kartik-181123/To-Do-App?style=for-the-badge&color=3B82F6&label=Latest%20Release)](https://github.com/Kartik-181123/To-Do-App/releases/latest)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D4?style=for-the-badge&logo=windows11&logoColor=white)](https://github.com/Kartik-181123/To-Do-App)
 [![License](https://img.shields.io/badge/License-MIT-gray?style=for-the-badge)](LICENSE)
@@ -22,6 +22,14 @@ Unlike modern productivity tools that consume hundreds of megabytes of RAM runni
 - Idle CPU Usage: 0%
 - Memory Footprint: ~27.8 MB RAM
 - Zero Background Telemetry or Bloat
+
+---
+
+## What's New in 6.1.0 (Maintenance & Optimization)
+
+- Reminder Engine Batching: Optimized recurring timer scans to batch database upserts when recording reminder offset timestamps, reducing disk I/O.
+- App Blocker Target Deduping: Guarded process target dictionary construction with defensive duplicate detection when custom and preset rules overlap.
+- Website & Release Portal: Added landing page and GitHub release detection.
 
 ---
 
