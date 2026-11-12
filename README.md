@@ -1,5 +1,10 @@
 # To-Do
 
+[![Download v6.0.0](https://img.shields.io/badge/Download-v6.0.0-10B981?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/Kartik-181123/To-Do-App/releases/latest)
+[![Release](https://img.shields.io/github/v/release/Kartik-181123/To-Do-App?style=for-the-badge&color=3B82F6&label=Latest%20Release)](https://github.com/Kartik-181123/To-Do-App/releases/latest)
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D4?style=for-the-badge&logo=windows11&logoColor=white)](https://github.com/Kartik-181123/To-Do-App)
+[![License](https://img.shields.io/badge/License-MIT-gray?style=for-the-badge)](LICENSE)
+
 A modern, ultra-lightweight desktop to-do list widget, focus suite, and task organizer for Windows.
 
 I built this app with a single goal in mind: killing procrastination. I often found myself getting distracted on my PC and completely forgetting what I actually sat down to do. This app sits on your desktop, keeps your tasks right in front of you, and reminds you when things are due so you stay on track.
